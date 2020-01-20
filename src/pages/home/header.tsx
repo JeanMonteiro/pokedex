@@ -15,6 +15,8 @@ export default function header({height}: headerProps) {
       <Text
         style={{
           fontSize: (height / 100) * 40,
+          paddingLeft: '5%',
+          paddingRight: '5%',
         }}>
         Pokedex
       </Text>

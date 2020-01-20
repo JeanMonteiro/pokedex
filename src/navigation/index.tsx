@@ -28,4 +28,4 @@ const stackNavigator = createSharedElementStackNavigator(
   },
 );
 
-export default createAppContainer(stackNavigator); //ts-ignore-line
+export default createAppContainer(stackNavigator);
