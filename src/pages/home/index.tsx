@@ -9,7 +9,6 @@ import {
   Dimensions,
   Image,
 } from 'react-native';
-import {SharedElement} from 'react-navigation-shared-element';
 import Header from './header';
 import Pokemon from '../../model/pokemon';
 import api from '../../services/api';

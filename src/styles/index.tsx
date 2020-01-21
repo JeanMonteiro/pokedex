@@ -20,4 +20,8 @@ export const colors = {
   Flying: '#a294ea',
   Fighting: '#b33c31',
   Ghost: '#6c5b94',
+  default: {
+    foregroundText: '#C4C7C9',
+    activeText: '#555',
+  },
 };

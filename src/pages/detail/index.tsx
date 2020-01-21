@@ -103,10 +103,33 @@ export const Detail = ({navigation}) => {
 
   return (
     <SafeAreaView style={{backgroundColor: colors[item.type[0]], flex: 1}}>
+      <Animated.Image
+        source={require('../../assets/pokeball.png')}
+        style={{
+          width: cardSize,
+          height: cardSize,
+          left: Math.round(width / 2 - cardSize / 2),
+          position: 'absolute',
+          top: height / 2 - (cardSize / 100) * 80,
+          zIndex: -10,
+          opacity: 0.5,
+          transform: [
+            {
+              rotate: pokeballRotation.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0deg', '360deg'],
+              }),
+            },
+          ],
+        }}
+      />
+
       <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
+          paddingLeft: '5%',
+          paddingRight: '5%',
         }}>
         <Button
           {...{
@@ -133,7 +156,6 @@ export const Detail = ({navigation}) => {
               ],
               outputRange: [1, 0, 0],
               extrapolate: 'clamp',
-              easing: Easing.linear,
             }),
           }}>
           {item.name}
@@ -163,7 +185,6 @@ export const Detail = ({navigation}) => {
             ],
             outputRange: [0, 1, 1],
             extrapolate: 'clamp',
-            easing: Easing.linear,
           }),
         }}>
         <Animated.Text
@@ -180,40 +201,25 @@ export const Detail = ({navigation}) => {
       </Animated.View>
       <Animated.View
         style={{
+          borderWidth: 1,
+          flexDirection: 'column',
           position: 'absolute',
           alignSelf: 'center',
-          top: height / 2 - 180,
+          top: height / 2 - Math.round((cardSize / 100) * 80),
           zIndex: 2,
           opacity: 1,
         }}>
-        <Animated.Image
-          source={require('../../assets/pokeball.png')}
-          style={{
-            width: cardSize,
-            height: cardSize,
-            position: 'absolute',
-            zIndex: -1,
-            opacity: 0.5,
-            transform: [
-              {
-                rotate: pokeballRotation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['0deg', '360deg'],
-                }),
-              },
-            ],
-          }}
-        />
-
-        <View>
+        <View style={{alignItems: 'baseline'}}>
           <SharedElement id={`${item.id}`}>
             <Animated.Image
               source={{
                 uri: item.img,
               }}
               style={{
+                borderColor: 'violet',
                 width: cardSize,
                 height: cardSize,
+                zIndex: 11,
                 opacity: painelHeight.interpolate({
                   inputRange: [
                     Math.round(finalDetailPosition),
@@ -222,7 +228,6 @@ export const Detail = ({navigation}) => {
                   ],
                   outputRange: [0, 0, 1],
                   extrapolate: 'clamp',
-                  easing: Easing.linear,
                 }),
               }}></Animated.Image>
           </SharedElement>
@@ -243,6 +248,9 @@ export const Detail = ({navigation}) => {
           flex: 1,
           backgroundColor: 'white',
           overflow: 'visible',
+          paddingTop: Math.round((cardSize / 100) * 20),
+          paddingLeft: '5%',
+          paddingRight: '5%',
         }}>
         <Tabs />
       </Animated.View>

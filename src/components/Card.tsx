@@ -49,14 +49,9 @@ export default function Card({item, cardSize, navigation}) {
                 uri: item.img,
               }}
               style={{
-                width: item.size.interpolate({
-                  inputRange: [0, cardSize],
-                  outputRange: [
-                    0,
-                    cardSize - Math.round((cardSize / 100) * 20),
-                  ],
-                }),
-                height: item.size.interpolate({
+                height: cardSize - Math.round((cardSize / 100) * 20),
+                width: cardSize - Math.round((cardSize / 100) * 20),
+                opacity: item.size.interpolate({
                   inputRange: [0, cardSize],
                   outputRange: [
                     0,

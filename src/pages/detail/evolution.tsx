@@ -1,10 +1,10 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 
-export default function status() {
+export default function evolution() {
   return (
     <View>
-      <Text>status</Text>
+      <Text>Evolution</Text>
     </View>
   );
 }

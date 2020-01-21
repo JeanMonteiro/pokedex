@@ -10,6 +10,7 @@
 
 import React, {Fragment} from 'react';
 import {useScreens} from 'react-native-screens';
+import 'react-native-gesture-handler';
 
 useScreens();
 
