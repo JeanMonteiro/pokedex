@@ -1,16 +1,11 @@
-import React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Text,
-  Image,
-} from 'react-native';
+import React, {useContext} from 'react';
+import {View, TouchableOpacity, StyleSheet, Animated, Text} from 'react-native';
 import {colors} from '../styles';
 import {SharedElement} from 'react-navigation-shared-element';
+import MyContext from '../store/context';
 
-export default function Card({item, cardSize, navigation}) {
+export default function Card({item, cardSize, navigation, index}) {
+  const {setItem, setIndex} = useContext(MyContext);
   return (
     <View
       style={{
@@ -31,7 +26,11 @@ export default function Card({item, cardSize, navigation}) {
         }}>
         <TouchableOpacity
           style={{...styles.touch, backgroundColor: colors[item.type[0]]}}
-          onPress={() => navigation.navigate('Detail', {item})}>
+          onPress={() => {
+            setIndex(index);
+            setItem(item);
+            navigation.navigate('Detail', {item});
+          }}>
           <Text style={{fontWeight: 'bold', color: '#fff'}}>{item.name}</Text>
           <Animated.Image
             source={require('../assets/pokeball.png')}
@@ -46,7 +45,8 @@ export default function Card({item, cardSize, navigation}) {
           <SharedElement id={item.id}>
             <Animated.Image
               source={{
-                uri: item.img,
+                uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
+                // cache: 'only-if-cached',
               }}
               style={{
                 height: cardSize - Math.round((cardSize / 100) * 20),

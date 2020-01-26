@@ -1,6 +1,18 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 
-export default StyleSheet.create({});
+export default StyleSheet.create({
+  monospaceFont: {
+    fontFamily: Platform.OS === 'ios' ? 'Menlo-Regular' : 'monospace',
+  },
+
+  container: {
+    paddingHorizontal: '5%',
+  },
+  textTitle: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+});
 
 export const colors = {
   Plant: '#72B357',
@@ -21,7 +33,7 @@ export const colors = {
   Fighting: '#b33c31',
   Ghost: '#6c5b94',
   default: {
-    foregroundText: '#C4C7C9',
+    foregroundText: '#A4A7A9',
     activeText: '#555',
   },
 };
