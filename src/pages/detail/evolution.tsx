@@ -1,17 +1,18 @@
-import React, {useContext, Fragment} from 'react';
+import React, {Fragment} from 'react';
 import {View, Text, Image} from 'react-native';
-import MyContext from '../../store/context';
 import Gstyles from '../../styles/index';
 import Pokemon from '../../model/pokemon';
 import {colors} from '../../styles/index';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {ApplicationStore} from '../../store/index';
+import {useSelector} from 'react-redux';
 
 export default function evolution({item}) {
-  const context = useContext(MyContext);
+  const {database} = useSelector((state: ApplicationStore) => state.pokemon);
 
   const evolutionsNode = () => {
     return item.evolutionList?.map((node, index) => {
-      const databaseItem = context.dataBase.find(
+      const databaseItem = database.find(
         (item: Pokemon) =>
           item.name == node.name.replace(/^./, node.name[0].toUpperCase()),
       );

@@ -1,5 +1,6 @@
 import Axios from 'axios';
 import Pokemon from '../model/pokemon';
+import Detail from '../model/details';
 
 const axios = Axios.create();
 
@@ -72,7 +73,7 @@ export default {
 
     getChildEvolutionInfo(evolutionReturn.data.chain.evolves_to);
 
-    return {
+    return new Detail(
       height,
       weight,
       description,
@@ -80,6 +81,6 @@ export default {
       stats,
       anatomia,
       evolutionList,
-    };
+    );
   },
 };

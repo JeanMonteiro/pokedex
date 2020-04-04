@@ -1,4 +1,5 @@
-import React, {useState, useContext} from 'react';
+import React from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   View,
   Animated,
@@ -10,25 +11,21 @@ import {
 } from 'react-native';
 import Header from './header';
 import Pokemon from '../../model/pokemon';
-import api from '../../services/api';
 import Card from '../../components/Card';
-import MyContext from '../../store/context';
+import {fetchFromApi} from '../../store/ducks/pokemon';
+import {ApplicationStore} from '../../store/index';
 
 const {height, width} = Dimensions.get('screen');
 const expandedHeaderHeight = (height / 100) * 15;
 const cardSize = Math.round((width / 100) * 40);
 
-export default ({navigation}) => {
-  const context = useContext(MyContext);
-  const [dataBase, setDataBase] = useState([]);
-
+export default () => {
+  const dataBase = useSelector(
+    (state: ApplicationStore) => state.pokemon.database,
+  );
+  const dispatch = useDispatch();
   React.useEffect(() => {
-    const fetchData = async () => {
-      const pokemonList = await api.list();
-      context.setDatabase(pokemonList);
-      setDataBase(pokemonList);
-    };
-    fetchData();
+    dispatch(fetchFromApi());
   }, []);
 
   React.useEffect(() => {
@@ -52,7 +49,7 @@ export default ({navigation}) => {
         justifyContent: 'center',
         paddingBottom: '10%',
       }}>
-      <Card {...{item, cardSize, navigation, index}}></Card>
+      <Card {...{item, cardSize, index}}></Card>
     </View>
   );
 
@@ -60,7 +57,7 @@ export default ({navigation}) => {
     data: dataBase,
     renderItem: renderPokemonItem,
     numColumns: 2,
-    keyExtractor: item => item.id,
+    keyExtractor: (item) => item.id,
     onEndReachedThreshold: 0.01,
     style: {
       paddingBottom: '25%',

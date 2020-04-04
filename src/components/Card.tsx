@@ -1,11 +1,20 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {View, TouchableOpacity, StyleSheet, Animated, Text} from 'react-native';
 import {colors} from '../styles';
 import {SharedElement} from 'react-navigation-shared-element';
-import MyContext from '../store/context';
+import {useDispatch} from 'react-redux';
+import {selectPokemon} from '../store/ducks/pokemon';
+import Pokemon from '../model/pokemon';
 
-export default function Card({item, cardSize, navigation, index}) {
-  const {setItem, setIndex} = useContext(MyContext);
+export interface props {
+  item: Pokemon;
+  cardSize: number;
+  index: number;
+}
+
+export default function Card({item, cardSize, index}: props) {
+  const dispatch = useDispatch();
+
   return (
     <View
       style={{
@@ -27,9 +36,7 @@ export default function Card({item, cardSize, navigation, index}) {
         <TouchableOpacity
           style={{...styles.touch, backgroundColor: colors[item.type[0]]}}
           onPress={() => {
-            setIndex(index);
-            setItem(item);
-            navigation.navigate('Detail', {item});
+            dispatch(selectPokemon({item, index}));
           }}>
           <Text style={{fontWeight: 'bold', color: '#fff'}}>{item.name}</Text>
           <Animated.Image
@@ -42,7 +49,7 @@ export default function Card({item, cardSize, navigation, index}) {
               opacity: 0.2,
             }}
           />
-          <SharedElement id={item.id}>
+          <SharedElement id={`${index}`}>
             <Animated.Image
               source={{
                 uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,

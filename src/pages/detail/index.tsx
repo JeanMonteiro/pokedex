@@ -1,4 +1,6 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
+import {useSelector, useDispatch} from 'react-redux';
+import {ApplicationStore} from '../../store';
 import {
   View,
   Dimensions,
@@ -16,36 +18,42 @@ import {colors} from '../../styles/index';
 import Tabs from '../../navigation/detailTabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import calc from '../../util/calc';
-import api from '../../services/api';
-import MyContext from '../../store/context';
 import Avatar from './avatar';
+import {
+  nextPokemon as nextPokemonActionCreator,
+  previousPokemon as previousPokemonActionCreator,
+} from '../../store/ducks/pokemon';
 
 const {height, width} = Dimensions.get('screen');
 const cardSize = calc.percent(width, 50);
+const initialDetailPosition = (height / 100) * 30;
+const finalDetailPosition = 0;
+
+const transitionType = {
+  PREVIOUS: 0,
+  NEXT: 1,
+};
 
 export const Detail = ({navigation}) => {
-  const {item, index, dataBase, setItem, setIndex} = useContext(MyContext);
+  const {database, index, selectedPokemon} = useSelector(
+    (state: ApplicationStore) => state.pokemon,
+  );
 
-  const initialDetailPosition = (height / 100) * 30;
-  const finalDetailPosition = 0;
+  const dispatch = useDispatch();
 
   const [detailOpened, setDetailOpened] = useState(false);
   const [painelHeight] = useState(new Animated.Value(initialDetailPosition));
-  const [avatarX] = useState(new Animated.Value(0));
-  const [nextAvatarX] = useState(new Animated.Value(0));
-  const [previousAvatarX] = useState(new Animated.Value(0));
-  const [pokemon, setPokemon] = useState(item);
+
+  //3 Avatars will be rendered considering this values and the array order
+  const [animatedValuesX, setAnimatedValuesX] = useState([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]);
 
   const [pokeballRotation] = useState(new Animated.Value(0));
 
-  const loadDetails = async () => {
-    const details = await api.getDetails(pokemon.num);
-    await setPokemon({...pokemon, ...details});
-  };
-
-  useEffect(() => {
-    loadDetails();
-  }, [pokemon.id]);
+  let isTransitioning: number = null;
 
   useEffect(() => {
     Animated.loop(
@@ -108,7 +116,7 @@ export const Detail = ({navigation}) => {
       },
     ]),
 
-    onPanResponderGrant: (e, gestureState) => {
+    onPanResponderGrant: () => {
       if (detailOpened) {
         painelHeight.setOffset(finalDetailPosition);
       } else {
@@ -122,51 +130,47 @@ export const Detail = ({navigation}) => {
   const previousPokemon = () => {
     if (index === 0) return;
     Animated.parallel([
-      Animated.timing(previousAvatarX, {
+      Animated.timing(animatedValuesX[0], {
         duration: 500,
         toValue: width / 2 + cardSize / 2,
       }),
-      Animated.timing(avatarX, {
+      Animated.timing(animatedValuesX[1], {
         duration: 500,
         toValue: width / 2 + cardSize / 2,
       }),
-    ]).start(async () => {
-      await setItem(dataBase[index - 1]);
-      await setIndex(index - 1);
-      await setPokemon(dataBase[index - 1]);
-      avatarX.setValue(0);
-      previousAvatarX.setValue(0);
+    ]).start(() => {
+      dispatch(previousPokemonActionCreator(selectedPokemon.num))
     });
   };
 
   const nextPokemon = async () => {
-    if (index === dataBase.length - 1) return;
+    if (index === database.length - 1) return;
+    isTransitioning = transitionType.NEXT; //sync
     Animated.parallel([
-      Animated.timing(nextAvatarX, {
+      Animated.timing(animatedValuesX[2], {
         duration: 500,
         toValue: (width / 2 + cardSize / 2) * -1,
       }),
-      Animated.timing(avatarX, {
+      Animated.timing(animatedValuesX[1], {
         duration: 500,
         toValue: (width / 2 + cardSize / 2) * -1,
       }),
-    ]).start(async () => {
-      await setItem(dataBase[index + 1]);
-      await setIndex(index + 1);
-      avatarX.setValue(0);
-      nextAvatarX.setValue(0);
-      await setPokemon(dataBase[index + 1]);
+    ]).start(() => {
+      dispatch(nextPokemonActionCreator(selectedPokemon.num));
     });
+    // animatedValuesX.forEach((animatedValue) => animatedValue.setValue(0));
+    // async () =>
+    //   dispatch(nextPokemonActionCreator(selectedPokemon.num)),
   };
 
   const panResponderAvatar = PanResponder.create({
     onPanResponderStart: () => {},
 
-    onMoveShouldSetPanResponder: (e, gestureState) => true,
+    onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: Animated.event([
       null,
       {
-        dx: avatarX,
+        dx: animatedValuesX[1],
       },
     ]),
 
@@ -180,15 +184,15 @@ export const Detail = ({navigation}) => {
         return;
       }
 
-      Animated.timing(avatarX, {
+      Animated.timing(animatedValuesX[1], {
         duration: 300,
         toValue: 0,
       }).start();
     },
   });
 
-  const renderTypes = types =>
-    types.map(type => (
+  const renderTypes = (types) =>
+    types.map((type) => (
       <View
         key={type}
         style={{
@@ -206,40 +210,61 @@ export const Detail = ({navigation}) => {
 
   const animatedColor = () => {
     if (index == 0) {
-      return avatarX.interpolate({
+      return animatedValuesX[1].interpolate({
         inputRange: [0, width / 2 + cardSize / 2],
         outputRange: [
-          colors[pokemon.type[0]],
-          colors[dataBase[index + 1].type[0]],
+          colors[database[index].type[0]],
+          colors[database[index + 1].type[0]],
         ],
       });
     }
 
-    if (index > 0 && index !== dataBase.length - 1) {
-      return avatarX.interpolate({
+    if (index > 0 && index !== database.length - 1) {
+      return animatedValuesX[1].interpolate({
         inputRange: [
           (width / 2 + cardSize / 2) * -1,
           0,
           width / 2 + cardSize / 2,
         ],
         outputRange: [
-          colors[dataBase[index + 1].type[0]],
-          colors[pokemon.type[0]],
-          colors[dataBase[index - 1].type[0]],
+          colors[database[index + 1].type[0]],
+          colors[database[index].type[0]],
+          colors[database[index - 1].type[0]],
         ],
       });
     }
-    if (index > 0 && index == dataBase.length - 1) {
-      return avatarX.interpolate({
+    if (index > 0 && index == database.length - 1) {
+      return animatedValuesX[1].interpolate({
         inputRange: [(width / 2 + cardSize / 2) * -1, 0],
         outputRange: [
-          colors[dataBase[index - 1].type[0]],
-          colors[pokemon.type[0]],
+          colors[database[index - 1].type[0]],
+          colors[database[index].type[0]],
         ],
       });
     }
   };
 
+  const renderAvatar = (animatedValue: Animated.Value, i: number) => {
+    if (i === 0 && index === 0) return null;
+    if (i === 2 && index === database.length) return null;
+    return (
+      <Avatar
+        {...{
+          key: i,
+          x: animatedValue,
+          cardSize,
+          finalDetailPosition,
+          height,
+          initialDetailPosition,
+          painelHeight,
+          panResponder: panResponderAvatar,
+          width,
+          position: i - 1,
+        }}
+      />
+    );
+  };
+  console.log('rendering again');
   return (
     <Animated.View
       style={{
@@ -280,7 +305,7 @@ export const Detail = ({navigation}) => {
                 extrapolate: 'clamp',
               }),
             }}>
-            {pokemon.name}
+            {selectedPokemon.name}
           </Animated.Text>
 
           <TouchableOpacity>
@@ -318,13 +343,13 @@ export const Detail = ({navigation}) => {
             ...styles.nameTitle,
             fontSize: Math.round(height / 22),
           }}>
-          {pokemon.name}
+          {selectedPokemon.name}
         </Animated.Text>
 
         <Animated.Text
           style={{
             ...styles.num,
-          }}>{`#${pokemon.num}`}</Animated.Text>
+          }}>{`#${selectedPokemon.num}`}</Animated.Text>
       </Animated.View>
 
       <Animated.View
@@ -351,57 +376,12 @@ export const Detail = ({navigation}) => {
             extrapolate: 'clamp',
           }),
         }}>
-        {renderTypes(pokemon.type)}
+        {renderTypes(selectedPokemon.type)}
       </Animated.View>
 
-      {index > 0 ? (
-        <Avatar
-          {...{
-            avatarX: previousAvatarX,
-            cardSize,
-            finalDetailPosition,
-            height,
-            initialDetailPosition,
-            painelHeight,
-            panResponder: panResponderAvatar,
-            pokemon: dataBase[index - 1],
-            width,
-            position: -1,
-          }}
-        />
-      ) : null}
-
-      <Avatar
-        {...{
-          avatarX,
-          cardSize,
-          finalDetailPosition,
-          height,
-          initialDetailPosition,
-          painelHeight,
-          panResponder: panResponderAvatar,
-          pokemon,
-          width,
-          position: 0,
-        }}
-      />
-
-      {index + 1 < dataBase.length ? (
-        <Avatar
-          {...{
-            avatarX: nextAvatarX,
-            cardSize,
-            finalDetailPosition,
-            height,
-            initialDetailPosition,
-            painelHeight,
-            panResponder: panResponderAvatar,
-            pokemon: dataBase[index + 1],
-            width,
-            position: 1,
-          }}
-        />
-      ) : null}
+      {animatedValuesX.map((animatedValue, animatedValuesIndex) =>
+        renderAvatar(animatedValue, animatedValuesIndex),
+      )}
 
       <Animated.View
         style={{
@@ -526,7 +506,7 @@ export const Detail = ({navigation}) => {
           paddingLeft: '5%',
           paddingRight: '5%',
         }}>
-        <Tabs item={{...pokemon}} />
+        <Tabs item={{...selectedPokemon}} />
       </Animated.View>
     </Animated.View>
   );
@@ -548,7 +528,8 @@ const styles = StyleSheet.create({
   },
 });
 
-Detail.sharedElements = navigation => {
-  const item = navigation.getParam('item');
-  return [{id: `${item.id}`, animation: 'fade'}];
+Detail.sharedElements = (navigation) => {
+  const index = navigation.getParam('index');
+  console.log(index);
+  return [{id: `${index}`, animation: 'fade'}];
 };
