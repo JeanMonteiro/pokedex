@@ -89,7 +89,7 @@ PODS:
     - React
   - RNScreens (1.0.0-alpha.23):
     - React
-  - RNSharedElement (0.5.5):
+  - RNSharedElement (0.5.6):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -214,10 +214,10 @@ SPEC CHECKSUMS:
   RNGestureHandler: 02905abe54e1f6e59c081a10b4bd689721e17aa6
   RNReanimated: 031fe8d9ea93c2bd689a40f05320ef9d96f74d7f
   RNScreens: f28b48b8345f2f5f39ed6195518291515032a788
-  RNSharedElement: d37c775d8952f7c07ff7aec97f552514e238b191
+  RNSharedElement: 83dc1bd2e0e04e4cc54af825382976a797106d19
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 5fa78d54d39f443bb39bcfdfc9aeb1c33187a99e
+PODFILE CHECKSUM: bb492fb0bf96ae30d7eb01f2f5873e7d0ff07882
 
 COCOAPODS: 1.8.4

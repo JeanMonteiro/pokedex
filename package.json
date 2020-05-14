@@ -26,7 +26,8 @@
     "react-navigation-tabs": "^2.7.0",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
-    "redux-saga": "^1.1.3"
+    "redux-saga": "^1.1.3",
+    "react-native-shared-element": "^0.5.5"
   },
   "devDependencies": {
     "@babel/core": "^7.5.0",

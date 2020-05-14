@@ -34,7 +34,7 @@ const Avatar = ({
 
   const getScreenPosition = (): Object => {
     if (position == -1) return {left: cardSize * -1};
-    if (position == 0) return {alignSelf: 'center'};
+    if (position == 0) return {left: width / 2 - cardSize / 2};
     return {right: cardSize * -1};
   };
 
@@ -159,7 +159,8 @@ const Avatar = ({
               width: cardSize - calc.percent(cardSize, 10),
               height: cardSize - calc.percent(cardSize, 10),
               zIndex: 11,
-            }}></Image>
+            }}
+          />
         </SharedElement>
       </View>
     </Animated.View>
