@@ -42,11 +42,10 @@ export default function Card({item, cardSize, navigation, index}) {
               opacity: 0.2,
             }}
           />
-          <SharedElement id={item.id}>
+          <SharedElement id={`item.${item.id}.photo`}>
             <Animated.Image
               source={{
                 uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
-                // cache: 'only-if-cached',
               }}
               style={{
                 height: cardSize - Math.round((cardSize / 100) * 20),

@@ -127,7 +127,7 @@ const Avatar = ({
             ],
           }}
         />
-        <SharedElement id={`${pokemon.id}`}>
+        <SharedElement id={`item.${pokemon.id}.photo`}>
           <Image
             source={{
               uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pokemon.num}.png`,

@@ -4,7 +4,7 @@ import MyContext from '../../store/context';
 import Gstyles from '../../styles/index';
 import Pokemon from '../../model/pokemon';
 import {colors} from '../../styles/index';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function evolution({item}) {
   const context = useContext(MyContext);
