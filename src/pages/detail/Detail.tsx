@@ -568,9 +568,4 @@ const styles = StyleSheet.create({
   },
 });
 
-Detail.sharedElements = navigation => {
-  const item = navigation?.params?.item;
-  return [`item.${item.id}.photo`];
-};
-
 export default Detail;
