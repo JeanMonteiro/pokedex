@@ -1,81 +1,96 @@
-import React, {useState, useContext} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useCallback, useContext, useState} from 'react';
 import {
-  View,
   Animated,
-  FlatList,
-  FlatListProperties,
-  SafeAreaView,
   Dimensions,
+  FlatList,
+  SafeAreaView,
   StatusBar,
+  StyleSheet,
+  View,
 } from 'react-native';
-import Header from './header';
+import Card from '../../components/Card';
 import Pokemon from '../../model/pokemon';
 import api from '../../services/api';
-import Card from '../../components/Card';
 import MyContext from '../../store/context';
+import Header from './header';
 
-const {height, width} = Dimensions.get('screen');
-const expandedHeaderHeight = (height / 100) * 15;
+const {width} = Dimensions.get('screen');
+
 const cardSize = Math.round((width / 100) * 40);
 
-export default props => {
-  const {navigation} = props;
-  const context = useContext(MyContext);
-  const [dataBase, setDataBase] = useState([]);
+export default () => {
+  const {setIndex} = useContext(MyContext);
+
+  const [pokemonList, setPokemonList] = useState<Pokemon[] | null>(null);
+  const navigation = useNavigation();
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const pokemonList = await api.list();
-      context.setDatabase(pokemonList);
-      setDataBase(pokemonList);
+      setPokemonList(await api.list());
     };
     fetchData();
   }, []);
 
   React.useEffect(() => {
-    for (let i = 0; i < dataBase.length; i++) {
-      const element = dataBase[i];
-      setTimeout(() => {
-        Animated.spring(element.size, {
-          toValue: cardSize,
-          tension: 1,
-          useNativeDriver: false,
-        }).start();
-      }, i * 200);
+    if (pokemonList) {
+      for (let i = 0; i < pokemonList.length; i++) {
+        const element = pokemonList[i];
+        setTimeout(() => {
+          Animated.spring(element.size, {
+            toValue: cardSize,
+            tension: 1,
+            useNativeDriver: false,
+          }).start();
+        }, i * 200);
+      }
     }
-  }, [dataBase]);
+  }, [pokemonList]);
+
+  const onPressPokemon = useCallback(
+    (item, index) => {
+      setIndex(index);
+      navigation.navigate('Detail', {index, item, pokemonList});
+    },
+    [navigation, setIndex, pokemonList],
+  );
 
   const renderPokemonItem = ({item, index}) => (
-    <View
-      style={{
-        flex: 1,
-        flexDirection: 'row',
-        alignContent: 'center',
-        justifyContent: 'center',
-        paddingBottom: '10%',
-      }}>
-      <Card {...{item, cardSize, navigation, index}}></Card>
+    <View style={styles.itemCardContainer}>
+      <Card
+        cardSize={cardSize}
+        item={item}
+        index={index}
+        onPress={onPressPokemon}
+      />
     </View>
   );
 
-  const pokeListProps: FlatListProperties<Pokemon> = {
-    data: dataBase,
-    renderItem: renderPokemonItem,
-    numColumns: 2,
-    keyExtractor: item => item.id,
-    onEndReachedThreshold: 0.01,
-    style: {
-      paddingBottom: '25%',
-    },
-  };
-
-  const renderPokeList = () => <FlatList {...pokeListProps} />;
-
   return (
     <SafeAreaView>
-      <StatusBar barStyle={'dark-content'}></StatusBar>
-      <Header height={expandedHeaderHeight} />
-      {renderPokeList()}
+      <StatusBar barStyle={'dark-content'} />
+      <Header />
+      <FlatList
+        data={pokemonList}
+        renderItem={renderPokemonItem}
+        numColumns={2}
+        keyExtractor={item => item.id}
+        onEndReachedThreshold={0.01}
+        style={styles.list}
+      />
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  itemCardContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignContent: 'center',
+    justifyContent: 'center',
+    paddingBottom: '10%',
+  },
+  list: {
+    paddingBottom: '25%',
+  },
+});

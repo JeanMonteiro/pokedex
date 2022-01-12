@@ -18,12 +18,27 @@ const Router = () => {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Home"
-        screenOptions={{headerShown: false}}>
+        mode="modal"
+        screenOptions={{
+          headerShown: false,
+          animationTypeForReplace: 'push',
+          // transitionSpec: {
+          //   open: {animation: 'timing', config: {duration: 300}},
+          //   close: {animation: 'timing', config: {duration: 300}},
+          // },
+          // cardStyleInterpolator: ({current: {progress}}) => {
+          //   return {
+          //     cardStyle: {
+          //       opacity: progress,
+          //     },
+          //   };
+          // },
+        }}>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen
           name="Detail"
           component={Detail}
-          sharedElementsConfig={route => {
+          sharedElements={route => {
             const {item} = route.params;
             return [
               {

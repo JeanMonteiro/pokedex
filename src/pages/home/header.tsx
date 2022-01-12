@@ -1,35 +1,34 @@
-import React, {Props} from 'react';
-import {View, Text, Image, Dimensions} from 'react-native';
+import React from 'react';
+import {View, Text, Image, Dimensions, StyleSheet} from 'react-native';
 
-const {width} = Dimensions.get('screen');
+const POKEBALL_DARK = require('../../assets/pokeball_dark.png');
 
-const pokeballImageSize = (width / 100) * 70;
+const {width, height} = Dimensions.get('screen');
 
-interface headerProps {
-  height: number;
-}
+const POKEBALL_IMAGE_SIZE = (width / 100) * 70;
+const EXPANDED_HEADER_HEIGHT = (height / 100) * 15;
 
-export default function header({height}: headerProps) {
+export default function header() {
   return (
-    <View style={{height, justifyContent: 'center'}}>
-      <Text
-        style={{
-          fontSize: (height / 100) * 40,
-          paddingLeft: '5%',
-          paddingRight: '5%',
-        }}>
-        Pokedex
-      </Text>
-      <Image
-        source={require('../../assets/pokeball_dark.png')}
-        style={{
-          height: pokeballImageSize,
-          width: pokeballImageSize,
-          position: 'absolute',
-          left: width - (pokeballImageSize / 100) * 70,
-          // zIndex: -1,
-          opacity: 0.2,
-        }}></Image>
+    <View style={styles.container}>
+      <Text style={styles.title}>Pokedex</Text>
+      <Image source={POKEBALL_DARK} style={styles.pokeballDark} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: (EXPANDED_HEADER_HEIGHT / 100) * 40,
+    paddingLeft: '5%',
+    paddingRight: '5%',
+  },
+  container: {height: EXPANDED_HEADER_HEIGHT, justifyContent: 'center'},
+  pokeballDark: {
+    height: POKEBALL_IMAGE_SIZE,
+    width: POKEBALL_IMAGE_SIZE,
+    position: 'absolute',
+    left: width - (POKEBALL_IMAGE_SIZE / 100) * 70,
+    opacity: 0.2,
+  },
+});

@@ -4,13 +4,18 @@ import Pokemon from '../model/pokemon';
 const axios = Axios.create();
 
 export default {
-  list: async (): Promise<Pokemon[]> => {
-    const {data} = await axios.get(
-      'https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json',
-    );
-    return data.pokemon.map(
-      item => new Pokemon(item.id, item.num, item.name, item.type, item.img),
-    );
+  list: async (): Promise<Pokemon[] | null> => {
+    try {
+      const {data} = await axios.get(
+        'https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json',
+      );
+      return data.pokemon.map(
+        item => new Pokemon(item.id, item.num, item.name, item.type, item.img),
+      );
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   },
 
   getDetails: async num => {

@@ -1,20 +1,22 @@
-import React, {useContext} from 'react';
-import {View, TouchableOpacity, StyleSheet, Animated, Text} from 'react-native';
-import {colors} from '../styles';
+import React, {useMemo} from 'react';
+import {Animated, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SharedElement} from 'react-navigation-shared-element';
-import MyContext from '../store/context';
+import Image from '../components/Image';
+import {colors} from '../styles';
 
-export default function Card({item, cardSize, navigation, index}) {
-  const {setItem, setIndex} = useContext(MyContext);
+const POKEBALL_IMAGE = require('../assets/pokeball.png');
+
+export default function Card({item, cardSize, index, onPress}) {
+  const imgUrl = useMemo(
+    () =>
+      `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
+    [item],
+  );
+
+  const onCardPress = () => onPress(item, index);
+
   return (
-    <View
-      style={{
-        width: cardSize,
-        height: cardSize,
-        alignContent: 'center',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}>
+    <View>
       <Animated.View
         style={{
           opacity: item.size.interpolate({
@@ -26,26 +28,16 @@ export default function Card({item, cardSize, navigation, index}) {
         }}>
         <TouchableOpacity
           style={{...styles.touch, backgroundColor: colors[item.type[0]]}}
-          onPress={() => {
-            setIndex(index);
-            setItem(item);
-            navigation.navigate('Detail', {item});
-          }}>
-          <Text style={{fontWeight: 'bold', color: '#fff'}}>{item.name}</Text>
-          <Animated.Image
-            source={require('../assets/pokeball.png')}
-            style={{
-              width: Math.round(cardSize - (cardSize / 100) * 20),
-              height: Math.round(cardSize - (cardSize / 100) * 20),
-              position: 'absolute',
-              zIndex: -1,
-              opacity: 0.2,
-            }}
+          onPress={onCardPress}>
+          <Text style={styles.cardTitle}>{item.name}</Text>
+          <Image
+            source={POKEBALL_IMAGE}
+            style={styles.pokeballImageContainer}
           />
           <SharedElement id={`item.${item.id}.photo`}>
             <Animated.Image
               source={{
-                uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
+                uri: imgUrl,
               }}
               style={{
                 height: cardSize - Math.round((cardSize / 100) * 20),
@@ -82,5 +74,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
+  },
+  cardTitle: {fontWeight: 'bold', color: '#fff'},
+  pokeballImageContainer: {
+    width: '70%',
+    height: '70%',
+    position: 'absolute',
+    zIndex: -1,
+    opacity: 0.2,
   },
 });
