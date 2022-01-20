@@ -4,51 +4,45 @@ import {
   Animated,
   Dimensions,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import Reanimated, {
+  useAnimatedStyle,
+  interpolate,
+  Extrapolate,
+} from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {FINAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION} from './Detail';
 
 const {height} = Dimensions.get('screen');
 
 export interface HeaderProps {
-  painelHeight: any;
+  bottomSheetY: Reanimated.SharedValue<number>;
   pokemonName: string;
 }
 
-const Header: React.FC<HeaderProps> = ({painelHeight, pokemonName}) => {
+const Header: React.FC<HeaderProps> = ({pokemonName, bottomSheetY}) => {
   const navigation = useNavigation();
+  const reanimatedWrapperStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(bottomSheetY.value, [448, 350], [0, 1], {
+      extrapolateRight: Extrapolate.CLAMP,
+    }),
+  }));
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => {
-          Animated.spring(painelHeight, {
-            toValue: 0,
-            bounciness: 1,
-            speed: 1,
-            useNativeDriver: false,
-          }).start();
-          navigation.goBack();
-        }}>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
         <Icon name="chevron-left" size={30} color="#fff" />
       </TouchableOpacity>
-      <Animated.Text
-        style={{
-          ...styles.nameTitle,
-          fontSize: Math.round(height / 25),
-          opacity: painelHeight.interpolate({
-            inputRange: [
-              Math.round(FINAL_DETAIL_POSITION),
-              Math.round(INITIAL_DETAIL_POSITION / 2),
-              Math.round(INITIAL_DETAIL_POSITION),
-            ],
-            outputRange: [1, 0, 0],
-            extrapolate: 'clamp',
-          }),
-        }}>
-        {pokemonName}
-      </Animated.Text>
+      <Reanimated.View style={reanimatedWrapperStyle}>
+        <Text
+          style={{
+            ...styles.nameTitle,
+            fontSize: Math.round(height / 25),
+          }}>
+          {pokemonName}
+        </Text>
+      </Reanimated.View>
 
       <TouchableOpacity>
         <Icon name="heart" size={30} color="#fff" />

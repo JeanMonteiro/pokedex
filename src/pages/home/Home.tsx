@@ -4,7 +4,6 @@ import {
   Animated,
   Dimensions,
   FlatList,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   View,
@@ -67,7 +66,7 @@ export default () => {
   );
 
   return (
-    <SafeAreaView>
+    <>
       <StatusBar barStyle={'dark-content'} />
       <Header />
       <FlatList
@@ -78,7 +77,7 @@ export default () => {
         onEndReachedThreshold={0.01}
         style={styles.list}
       />
-    </SafeAreaView>
+    </>
   );
 };
 

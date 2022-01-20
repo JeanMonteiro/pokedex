@@ -5,6 +5,7 @@ import {View} from 'react-native';
 import Navigation from './src/navigation';
 import MyContext from './src/store/context';
 import Pokemon from './src/model/pokemon';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 
 const state = {
   dataBase: [],
@@ -24,7 +25,9 @@ const state = {
 const App: React.FC = () => {
   return (
     <MyContext.Provider value={state}>
-      <Navigation />
+      <SafeAreaProvider>
+        <Navigation />
+      </SafeAreaProvider>
     </MyContext.Provider>
   );
 };
