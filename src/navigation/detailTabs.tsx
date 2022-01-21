@@ -1,71 +1,100 @@
-import About from '../pages/Detail/About';
-import Status from '../pages/Detail/Status';
-import Evolution from '../pages/Detail/Evolution';
-import {StyleSheet, Text} from 'react-native';
-import React from 'react';
+import React, {useCallback} from 'react';
+import {Dimensions, StyleSheet, Text, TextStyle, View} from 'react-native';
 import {TabBar, TabView} from 'react-native-tab-view';
-import {Dimensions} from 'react-native';
+import Pokemon from '../model/Pokemon';
+import About from '../pages/Detail/About';
+import Evolution from '../pages/Detail/Evolution';
+import Status from '../pages/Detail/Status';
 import globalStyles, {colors} from '../styles/index';
-
-const renderTabBar = item => props =>
-  (
-    <TabBar
-      {...props}
-      indicatorStyle={{backgroundColor: colors[item.type[0]]}}
-      style={{backgroundColor: 'white'}}
-      renderLabel={({route, focused}) => (
-        <Text
-          style={{
-            color: focused
-              ? colors.default.activeText
-              : colors.default.foregroundText,
-            fontWeight: focused ? 'bold' : 'normal',
-            fontSize: 12,
-            ...globalStyles.monospaceFont,
-          }}>
-          {route.title}
-        </Text>
-      )}
-    />
-  );
 
 const initialLayout = {width: Dimensions.get('window').width};
 
-export default function DetailTabs({item}) {
+export interface IDetailTabs {
+  item: Pokemon;
+}
+
+const DetailTabs: React.FC<IDetailTabs> = ({item}) => {
   const [index, setIndex] = React.useState(0);
-  console.log('item', item);
+
+  const getLabelStyle = useCallback(
+    (focused: boolean): TextStyle =>
+      focused
+        ? {
+            color: colors.default.activeText,
+            fontWeight: 'bold',
+            fontSize: 12,
+            ...globalStyles.monospaceFont,
+          }
+        : {
+            color: colors.default.foregroundText,
+            fontWeight: 'normal',
+            fontSize: 12,
+            ...globalStyles.monospaceFont,
+          },
+    [item.id],
+  );
+
+  const renderTabBar = useCallback(
+    () => props => {
+      return (
+        <TabBar
+          {...props}
+          indicatorStyle={{backgroundColor: colors[item.type[0]]}}
+          style={styles.tabBar}
+          renderLabel={({route, focused}) => (
+            <Text style={getLabelStyle(focused)}>{route.title}</Text>
+          )}
+        />
+      );
+    },
+    [item.id],
+  );
 
   const [routes] = React.useState([
-    {key: 'first', title: 'Sobre'},
-    {key: 'second', title: 'Evolução'},
-    {key: 'third', title: 'Status'},
+    {key: '1', title: 'Sobre'},
+    {key: '2', title: 'Evolução'},
+    {key: '3', title: 'Status'},
   ]);
 
   const renderScene =
-    item1 =>
+    () =>
     ({route}) => {
+      let scene;
       switch (route.key) {
-        case 'first':
-          return <About item={item1} />;
-        case 'second':
-          return <Evolution item={item1} />;
-        case 'third':
-          return <Status item={item1} />;
+        case '1':
+          scene = <About item={item} />;
+          break;
+        case '2':
+          scene = <Evolution item={item} />;
+          break;
+        case '3':
+          scene = <Status item={item} />;
+          break;
         default:
-          return null;
+          scene = null;
       }
+      return <View style={styles.sceneContainer}>{scene}</View>;
     };
 
   return (
     <TabView
       navigationState={{index, routes}}
-      renderScene={renderScene(item)}
+      renderScene={renderScene()}
       onIndexChange={setIndex}
       initialLayout={initialLayout}
-      renderTabBar={renderTabBar(item)}
+      renderTabBar={renderTabBar()}
       swipeEnabled={true}
     />
   );
-}
+};
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  tabBar: {
+    backgroundColor: 'white',
+  },
+  sceneContainer: {
+    padding: '5%',
+  },
+});
+
+export default DetailTabs;

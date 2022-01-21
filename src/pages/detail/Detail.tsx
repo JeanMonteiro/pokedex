@@ -1,14 +1,7 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import {useRoute} from '@react-navigation/native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-  Animated,
-  Dimensions,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
 import Reanimated, {
   Extrapolate,
   interpolate,
@@ -18,13 +11,13 @@ import Reanimated, {
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {SharedElement} from 'react-navigation-shared-element';
 import Image from '../../components/Image';
+import Tabs from '../../navigation/DetailTabs';
 import api from '../../services/api';
 import {colors} from '../../styles/index';
 import calc from '../../util/calc';
 import ChangePokemonButton from './ChangePokemonButton';
 import Header from './Header';
 import Info from './Info';
-import Tabs from '../../navigation/DetailTabs';
 
 const POKEBALL_IMG = require('../../assets/pokeball.png');
 
@@ -61,14 +54,17 @@ const Detail = () => {
   const [pokemonListOffset] = useState(new Animated.Value(0));
   const [pokemon, setPokemon] = useState(item);
   const [currentSelection, setCurrentSelection] = useState(index);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const [pokeballRotation] = useState(new Animated.Value(0));
 
   const listRef = useRef(null);
 
   const loadDetails = async () => {
+    setLoadingDetails(true);
     const details = await api.getDetails(pokemonList[currentSelection].num);
-    await setPokemon({...pokemon, ...details});
+    await setPokemon({...pokemonList[currentSelection], ...details});
+    setLoadingDetails(false);
   };
 
   useEffect(() => {
@@ -254,12 +250,11 @@ const Detail = () => {
           getItemLayout={getItemLayout}
           scrollEventThrottle={16}
           keyExtractor={pok => pok.id}
-          onMomentumScrollEnd={event => {
-            console.log('onMomentumScrollEnd');
+          onMomentumScrollEnd={event =>
             setCurrentSelection(
               Math.round(event.nativeEvent.contentOffset.x / width),
-            );
-          }}
+            )
+          }
         />
       </Reanimated.View>
 
@@ -291,7 +286,7 @@ const Detail = () => {
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         animatedPosition={animatedYPosition}>
-        <Tabs item={{...pokemon}} />
+        <Tabs item={{...pokemon}} loading={loadingDetails} />
       </BottomSheet>
     </Animated.View>
   );

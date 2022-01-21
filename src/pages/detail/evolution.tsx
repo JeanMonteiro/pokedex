@@ -1,10 +1,11 @@
 import React, {useContext, Fragment} from 'react';
-import {View, Text, Image} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import MyContext from '../../store/context';
 import Gstyles from '../../styles/index';
 import Pokemon from '../../model/Pokemon';
 import {colors} from '../../styles/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Image from '../../components/Image';
 
 export interface IEvolution {
   item: Pokemon;
@@ -24,24 +25,15 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
           <View>
             <View>
               <Image
-                style={{height: 60, width: 60}}
-                source={{
-                  uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
-                }}
+                style={styles.image}
+                source={`https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${databaseItem.num}.png`}
               />
 
               <View>
-                <Text
-                  style={{
-                    fontWeight: 'bold',
-                    alignSelf: 'center',
-                    color: colors.default.activeText,
-                  }}>
-                  {node.name}
-                </Text>
+                <Text style={styles.name}>{node.name}</Text>
               </View>
 
-              <View style={{flexDirection: 'row'}}>
+              <View style={styles.levelContainer}>
                 <Text style={{color: colors.default.foregroundText}}>
                   Level:{' '}
                 </Text>
@@ -52,13 +44,7 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
             </View>
           </View>
           {item.evolutionList.length - 1 > index && (
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                flex: 1,
-                flexDirection: 'row',
-              }}>
+            <View style={styles.arrowIconContainer}>
               <Icon
                 name="chevron-right"
                 size={20}
@@ -73,19 +59,39 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
 
   return (
     <View>
-      <View
-        style={{
-          alignItems: 'center',
-          marginBottom: 10,
-          marginTop: 10,
-        }}>
+      <View style={styles.innerContainer}>
         <Text style={Gstyles.textTitle}>Grade de evolução</Text>
       </View>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        {evolutionsNode()}
-      </View>
+      <View style={styles.evolutionLineContainer}>{evolutionsNode()}</View>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  image: {height: 60, width: 60},
+  name: {
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    color: colors.default.activeText,
+  },
+  levelContainer: {
+    flexDirection: 'row',
+  },
+  arrowIconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    flexDirection: 'row',
+  },
+  evolutionLineContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  innerContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+    marginTop: 10,
+  },
+});
 
 export default Evolution;

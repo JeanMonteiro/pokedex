@@ -19,14 +19,16 @@ const {width} = Dimensions.get('screen');
 const cardSize = Math.round((width / 100) * 40);
 
 export default () => {
-  const {setIndex} = useContext(MyContext);
+  const {setIndex, setDatabase} = useContext(MyContext);
 
   const [pokemonList, setPokemonList] = useState<Pokemon[] | null>(null);
   const navigation = useNavigation();
 
   React.useEffect(() => {
     const fetchData = async () => {
-      setPokemonList(await api.list());
+      const list = await api.list();
+      setPokemonList(list);
+      setDatabase(list);
     };
     fetchData();
   }, []);
