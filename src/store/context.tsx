@@ -1,5 +1,5 @@
 import React from 'react';
-import Pokemon from '../model/pokemon';
+import Pokemon from '../model/Pokemon';
 
 const state = {
   dataBase: [],

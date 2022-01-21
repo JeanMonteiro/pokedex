@@ -2,11 +2,15 @@ import React, {useContext, Fragment} from 'react';
 import {View, Text, Image} from 'react-native';
 import MyContext from '../../store/context';
 import Gstyles from '../../styles/index';
-import Pokemon from '../../model/pokemon';
+import Pokemon from '../../model/Pokemon';
 import {colors} from '../../styles/index';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function evolution({item}) {
+export interface IEvolution {
+  item: Pokemon;
+}
+
+const Evolution: React.FC<IEvolution> = ({item}) => {
   const context = useContext(MyContext);
 
   const evolutionsNode = () => {
@@ -22,7 +26,7 @@ export default function evolution({item}) {
               <Image
                 style={{height: 60, width: 60}}
                 source={{
-                  uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${databaseItem.num}.png`,
+                  uri: `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
                 }}
               />
 
@@ -82,4 +86,6 @@ export default function evolution({item}) {
       </View>
     </View>
   );
-}
+};
+
+export default Evolution;

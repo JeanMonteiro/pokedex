@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import Card from '../../components/Card';
-import Pokemon from '../../model/pokemon';
+import Pokemon from '../../model/Pokemon';
 import api from '../../services/api';
 import MyContext from '../../store/context';
 import Header from './header';

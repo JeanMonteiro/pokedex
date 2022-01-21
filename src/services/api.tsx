@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import Pokemon from '../model/pokemon';
+import Pokemon from '../model/Pokemon';
 
 const axios = Axios.create();
 

@@ -1,11 +1,9 @@
-import About from '../pages/Detail/about';
-import Status from '../pages/Detail/status';
-import Evolution from '../pages/Detail/evolution';
-import {Text} from 'react-native';
+import About from '../pages/Detail/About';
+import Status from '../pages/Detail/Status';
+import Evolution from '../pages/Detail/Evolution';
+import {StyleSheet, Text} from 'react-native';
 import React from 'react';
-import {TabBar} from 'react-native-tab-view';
-
-import {TabView} from 'react-native-tab-view';
+import {TabBar, TabView} from 'react-native-tab-view';
 import {Dimensions} from 'react-native';
 import globalStyles, {colors} from '../styles/index';
 
@@ -33,8 +31,10 @@ const renderTabBar = item => props =>
 
 const initialLayout = {width: Dimensions.get('window').width};
 
-export default function TabViewExample({item}) {
+export default function DetailTabs({item}) {
   const [index, setIndex] = React.useState(0);
+  console.log('item', item);
+
   const [routes] = React.useState([
     {key: 'first', title: 'Sobre'},
     {key: 'second', title: 'Evolução'},
@@ -42,15 +42,15 @@ export default function TabViewExample({item}) {
   ]);
 
   const renderScene =
-    item =>
+    item1 =>
     ({route}) => {
       switch (route.key) {
         case 'first':
-          return <About item={item} />;
+          return <About item={item1} />;
         case 'second':
-          return <Evolution item={item} />;
+          return <Evolution item={item1} />;
         case 'third':
-          return <Status item={item} />;
+          return <Status item={item1} />;
         default:
           return null;
       }
@@ -67,3 +67,5 @@ export default function TabViewExample({item}) {
     />
   );
 }
+
+const styles = StyleSheet.create({});

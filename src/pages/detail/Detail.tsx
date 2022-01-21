@@ -24,6 +24,7 @@ import calc from '../../util/calc';
 import ChangePokemonButton from './ChangePokemonButton';
 import Header from './Header';
 import Info from './Info';
+import Tabs from '../../navigation/DetailTabs';
 
 const POKEBALL_IMG = require('../../assets/pokeball.png');
 
@@ -66,13 +67,13 @@ const Detail = () => {
   const listRef = useRef(null);
 
   const loadDetails = async () => {
-    const details = await api.getDetails(pokemon.num);
+    const details = await api.getDetails(pokemonList[currentSelection].num);
     await setPokemon({...pokemon, ...details});
   };
 
   useEffect(() => {
     loadDetails();
-  }, [pokemon.id]);
+  }, [currentSelection]);
 
   useEffect(() => {
     Animated.loop(
@@ -254,6 +255,7 @@ const Detail = () => {
           scrollEventThrottle={16}
           keyExtractor={pok => pok.id}
           onMomentumScrollEnd={event => {
+            console.log('onMomentumScrollEnd');
             setCurrentSelection(
               Math.round(event.nativeEvent.contentOffset.x / width),
             );
@@ -289,9 +291,7 @@ const Detail = () => {
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         animatedPosition={animatedYPosition}>
-        <View style={styles.cardContainer}>
-          <Text>Test</Text>
-        </View>
+        <Tabs item={{...pokemon}} />
       </BottomSheet>
     </Animated.View>
   );

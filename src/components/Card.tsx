@@ -2,11 +2,19 @@ import React, {useMemo} from 'react';
 import {Animated, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SharedElement} from 'react-navigation-shared-element';
 import Image from '../components/Image';
+import Pokemon from '../model/Pokemon';
 import {colors} from '../styles';
 
 const POKEBALL_IMAGE = require('../assets/pokeball.png');
 
-export default function Card({item, cardSize, index, onPress}) {
+export interface ICard {
+  item: Pokemon;
+  cardSize: number;
+  index: number;
+  onPress: (item: Pokemon, index: number) => void;
+}
+
+const Card: React.FC<ICard> = ({item, cardSize, index, onPress}) => {
   const imgUrl = useMemo(
     () =>
       `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
@@ -19,12 +27,8 @@ export default function Card({item, cardSize, index, onPress}) {
     <View>
       <Animated.View
         style={{
-          opacity: item.size.interpolate({
-            inputRange: [0, cardSize],
-            outputRange: [0, 1],
-          }),
-          width: item.size,
-          height: item.size,
+          width: cardSize,
+          height: cardSize,
         }}>
         <TouchableOpacity
           style={{...styles.touch, backgroundColor: colors[item.type[0]]}}
@@ -42,13 +46,6 @@ export default function Card({item, cardSize, index, onPress}) {
               style={{
                 height: cardSize - Math.round((cardSize / 100) * 20),
                 width: cardSize - Math.round((cardSize / 100) * 20),
-                opacity: item.size.interpolate({
-                  inputRange: [0, cardSize],
-                  outputRange: [
-                    0,
-                    cardSize - Math.round((cardSize / 100) * 20),
-                  ],
-                }),
               }}
             />
           </SharedElement>
@@ -56,7 +53,9 @@ export default function Card({item, cardSize, index, onPress}) {
       </Animated.View>
     </View>
   );
-}
+};
+
+export default Card;
 
 const styles = StyleSheet.create({
   container: {
