@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {Animated, View, Easing} from 'react-native';
-import {SharedElement} from 'react-navigation-shared-element';
 import calc from '../../util/calc';
 import Image from '../../components/Image';
 
@@ -127,16 +126,14 @@ const Avatar = ({
             ],
           }}
         />
-        <SharedElement id={`item.${pokemon.id}.photo`}>
-          <Image
-            source={`https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pokemon.num}.png`}
-            style={{
-              width: cardSize - calc.percent(cardSize, 10),
-              height: cardSize - calc.percent(cardSize, 10),
-              zIndex: 11,
-            }}
-          />
-        </SharedElement>
+        <Image
+          source={`https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${pokemon.num}.png`}
+          style={{
+            width: cardSize - calc.percent(cardSize, 10),
+            height: cardSize - calc.percent(cardSize, 10),
+            zIndex: 11,
+          }}
+        />
       </View>
     </Animated.View>
   );

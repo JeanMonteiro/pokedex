@@ -1,6 +1,5 @@
 import React, {useMemo} from 'react';
 import {Animated, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {SharedElement} from 'react-navigation-shared-element';
 import Image from '../components/Image';
 import Pokemon from '../model/Pokemon';
 import {colors} from '../styles';
@@ -38,17 +37,15 @@ const Card: React.FC<ICard> = ({item, cardSize, index, onPress}) => {
             source={POKEBALL_IMAGE}
             style={styles.pokeballImageContainer}
           />
-          <SharedElement id={`item.${item.id}.photo`}>
-            <Animated.Image
-              source={{
-                uri: imgUrl,
-              }}
-              style={{
-                height: cardSize - Math.round((cardSize / 100) * 20),
-                width: cardSize - Math.round((cardSize / 100) * 20),
-              }}
-            />
-          </SharedElement>
+          <Animated.Image
+            source={{
+              uri: imgUrl,
+            }}
+            style={{
+              height: cardSize - Math.round((cardSize / 100) * 20),
+              width: cardSize - Math.round((cardSize / 100) * 20),
+            }}
+          />
         </TouchableOpacity>
       </Animated.View>
     </View>

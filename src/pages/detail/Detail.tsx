@@ -3,13 +3,12 @@ import {useRoute} from '@react-navigation/native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
 import Reanimated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {SharedElement} from 'react-navigation-shared-element';
 import Image from '../../components/Image';
 import Tabs from '../../navigation/DetailTabs';
 import api from '../../services/api';
@@ -140,9 +139,7 @@ const Detail = () => {
         <Reanimated.View style={styles.listItemContainer}>
           {renderBackgroundPokeball()}
           <Animated.View style={{...styles.listItemContainer}}>
-            <SharedElement id={`item.${listItem.id}.photo`}>
-              <Image source={imageURL} style={{...styles.itemImage}} />
-            </SharedElement>
+            <Image source={imageURL} style={{...styles.itemImage}} />
           </Animated.View>
         </Reanimated.View>
       </View>
@@ -156,7 +153,7 @@ const Detail = () => {
         [INITIAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION * 0.87],
         [1, 0],
         {
-          extrapolateRight: Extrapolate.CLAMP,
+          extrapolateRight: Extrapolation.CLAMP,
         },
       ),
       transform: [
@@ -166,7 +163,7 @@ const Detail = () => {
             [INITIAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION / 3],
             [0, 100],
             {
-              extrapolateRight: Extrapolate.CLAMP,
+              extrapolateRight: Extrapolation.CLAMP,
             },
           ),
         },
@@ -181,7 +178,7 @@ const Detail = () => {
         [INITIAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION * 0.87],
         [1, 0],
         {
-          extrapolateRight: Extrapolate.CLAMP,
+          extrapolateRight: Extrapolation.CLAMP,
         },
       ),
       transform: [
@@ -191,7 +188,7 @@ const Detail = () => {
             [INITIAL_DETAIL_POSITION, FINAL_DETAIL_POSITION],
             [height * 0.4, height * 0.5],
             {
-              extrapolateRight: Extrapolate.CLAMP,
+              extrapolateRight: Extrapolation.CLAMP,
             },
           ),
         },

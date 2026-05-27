@@ -1,17 +1,16 @@
 import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
-import {createSharedElementStackNavigator} from 'react-navigation-shared-element';
 import Detail from '../pages/Detail';
 import Home from '../pages/home';
 
-const Stack = createSharedElementStackNavigator();
+const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Home"
-        mode="modal"
         screenOptions={{
           headerShown: false,
         }}>
@@ -19,17 +18,7 @@ const RootNavigator = () => {
         <Stack.Screen
           name="Detail"
           component={Detail}
-          sharedElements={(route, _, showing) => {
-            const {item} = route.params;
-            return showing
-              ? [
-                  {
-                    id: `item.${item.id}.photo`,
-                    animation: 'fade',
-                  },
-                ]
-              : undefined;
-          }}
+          options={{presentation: 'modal'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

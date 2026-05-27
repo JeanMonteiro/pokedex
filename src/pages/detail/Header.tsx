@@ -11,9 +11,9 @@ import {
 import Reanimated, {
   useAnimatedStyle,
   interpolate,
-  Extrapolate,
+  Extrapolation,
 } from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@react-native-vector-icons/fontawesome';
 
 const {height} = Dimensions.get('screen');
 
@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({pokemonName, bottomSheetY}) => {
   const navigation = useNavigation();
   const reanimatedWrapperStyle = useAnimatedStyle(() => ({
     opacity: interpolate(bottomSheetY.value, [448, 350], [0, 1], {
-      extrapolateRight: Extrapolate.CLAMP,
+      extrapolateRight: Extrapolation.CLAMP,
     }),
   }));
   return (

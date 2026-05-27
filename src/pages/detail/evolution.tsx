@@ -4,7 +4,7 @@ import MyContext from '../../store/context';
 import Gstyles from '../../styles/index';
 import Pokemon from '../../model/Pokemon';
 import {colors} from '../../styles/index';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@react-native-vector-icons/fontawesome';
 import Image from '../../components/Image';
 
 export interface IEvolution {
