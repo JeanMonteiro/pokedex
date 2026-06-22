@@ -18,7 +18,9 @@ const RootNavigator = () => {
         <Stack.Screen
           name="Detail"
           component={Detail}
-          options={{presentation: 'modal'}}
+          // Cross-fade the screen so the hero avatar (flown in by HeroProvider)
+          // is the focal point of the transition instead of a sliding modal.
+          options={{animation: 'fade'}}
         />
       </Stack.Navigator>
     </NavigationContainer>

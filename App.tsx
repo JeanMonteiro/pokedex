@@ -1,11 +1,12 @@
 import React from 'react';
-import 'react-native-gesture-handler';
 import {View} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import Navigation from './src/navigation';
 import MyContext from './src/store/context';
 import Pokemon from './src/model/Pokemon';
-import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {HeroProvider} from './src/transition/HeroContext';
 
 const state = {
   dataBase: [],
@@ -24,11 +25,17 @@ const state = {
 
 const App: React.FC = () => {
   return (
-    <MyContext.Provider value={state}>
-      <SafeAreaProvider>
-        <Navigation />
-      </SafeAreaProvider>
-    </MyContext.Provider>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <MyContext.Provider value={state}>
+        <SafeAreaProvider>
+          <HeroProvider>
+            <View style={{flex: 1}}>
+              <Navigation />
+            </View>
+          </HeroProvider>
+        </SafeAreaProvider>
+      </MyContext.Provider>
+    </GestureHandlerRootView>
   );
 };
 

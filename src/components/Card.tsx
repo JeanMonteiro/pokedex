@@ -1,8 +1,17 @@
-import React, {useMemo} from 'react';
-import {Animated, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useMemo, useRef} from 'react';
+import {
+  Animated,
+  Image as RNImage,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Reanimated from 'react-native-reanimated';
 import Image from '../components/Image';
 import Pokemon from '../model/Pokemon';
 import {colors} from '../styles';
+import {useHero} from '../transition/HeroContext';
 
 const POKEBALL_IMAGE = require('../assets/pokeball.png');
 
@@ -14,13 +23,30 @@ export interface ICard {
 }
 
 const Card: React.FC<ICard> = ({item, cardSize, index, onPress}) => {
+  const hero = useHero();
+  const avatarRef = useRef<RNImage>(null);
+
   const imgUrl = useMemo(
     () =>
       `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${item.num}.png`,
     [item],
   );
 
-  const onCardPress = () => onPress(item, index);
+  const onCardPress = () => {
+    const node = avatarRef.current;
+    // Measure the avatar in window coords so the overlay can fly from here.
+    // Always navigate, even if measuring is unavailable, so the tap never stalls.
+    if (node && typeof node.measureInWindow === 'function') {
+      node.measureInWindow((x, y, width, height) => {
+        if (width && height) {
+          hero.begin(imgUrl, {x, y, width, height});
+        }
+        onPress(item, index);
+      });
+    } else {
+      onPress(item, index);
+    }
+  };
 
   return (
     <View>
@@ -37,7 +63,8 @@ const Card: React.FC<ICard> = ({item, cardSize, index, onPress}) => {
             source={POKEBALL_IMAGE}
             style={styles.pokeballImageContainer}
           />
-          <Animated.Image
+          <Reanimated.Image
+            ref={avatarRef}
             source={{
               uri: imgUrl,
             }}
