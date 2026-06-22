@@ -13,7 +13,7 @@ import Reanimated, {
   interpolate,
   Extrapolation,
 } from 'react-native-reanimated';
-import Icon from '@react-native-vector-icons/fontawesome';
+import Icon from '@react-native-vector-icons/fontawesome/static';
 
 const {height} = Dimensions.get('screen');
 

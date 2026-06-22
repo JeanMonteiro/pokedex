@@ -47,6 +47,7 @@
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
     "prettier": "2.8.8",
+    "react-native-asset": "^2.3.0",
     "react-test-renderer": "19.2.3",
     "typescript": "^5.8.3"
   },

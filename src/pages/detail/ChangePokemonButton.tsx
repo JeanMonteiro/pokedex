@@ -1,6 +1,6 @@
 import React from 'react';
 import {Dimensions, StyleSheet, TouchableOpacity, View} from 'react-native';
-import Icon from '@react-native-vector-icons/fontawesome';
+import Icon from '@react-native-vector-icons/fontawesome/static';
 
 const {width} = Dimensions.get('screen');
 
