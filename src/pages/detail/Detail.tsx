@@ -10,7 +10,7 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Image from '../../components/Image';
-import Tabs from '../../navigation/DetailTabs';
+import Tabs from '../../navigation/detailTabs';
 import api from '../../services/api';
 import {colors} from '../../styles/index';
 import calc from '../../util/calc';

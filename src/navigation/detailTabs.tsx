@@ -2,9 +2,9 @@ import React, {useCallback} from 'react';
 import {Dimensions, StyleSheet, Text, TextStyle, View} from 'react-native';
 import {TabBar, TabView} from 'react-native-tab-view';
 import Pokemon from '../model/Pokemon';
-import About from '../pages/Detail/About';
-import Evolution from '../pages/Detail/Evolution';
-import Status from '../pages/Detail/Status';
+import About from '../pages/detail/about';
+import Evolution from '../pages/detail/evolution';
+import Status from '../pages/detail/status';
 import globalStyles, {colors} from '../styles/index';
 
 const initialLayout = {width: Dimensions.get('window').width};
