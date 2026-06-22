@@ -1,4 +1,4 @@
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import {useRoute} from '@react-navigation/native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
@@ -282,8 +282,18 @@ const Detail = () => {
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
+        enableDynamicSizing={false}
+        topInset={insets.top}
         animatedPosition={animatedYPosition}>
-        <Tabs item={{...pokemon}} loading={loadingDetails} />
+        {/*
+          bottom-sheet v5's BottomSheetView is position:absolute and sized by its
+          content, so `flex: 1` collapses it (and the TabView's pager) to height 0.
+          Give it the full-open sheet height so the tabs actually render; the sheet
+          clips the overflow at the half-open snap.
+        */}
+        <BottomSheetView style={styles.sheetContent}>
+          <Tabs item={{...pokemon}} loading={loadingDetails} />
+        </BottomSheetView>
       </BottomSheet>
     </Animated.View>
   );
@@ -291,6 +301,7 @@ const Detail = () => {
 
 const styles = StyleSheet.create({
   container: {flex: 1, height: '100%', zIndex: -999},
+  sheetContent: {height: FINAL_DETAIL_POSITION},
   cardContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
