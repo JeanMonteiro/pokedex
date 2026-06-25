@@ -1,17 +1,17 @@
-import BottomSheet from '@gorhom/bottom-sheet';
-import {useRoute} from '@react-navigation/native';
+import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
+import {useHero} from '../../transition/HeroContext';
 import Reanimated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {SharedElement} from 'react-navigation-shared-element';
 import Image from '../../components/Image';
-import Tabs from '../../navigation/DetailTabs';
+import Tabs from '../../navigation/detailTabs';
 import api from '../../services/api';
 import {colors} from '../../styles/index';
 import calc from '../../util/calc';
@@ -48,6 +48,46 @@ const Detail = () => {
 
   const {item, index, pokemonList} = route.params;
 
+  const navigation = useNavigation();
+
+  // Hero transition: the avatar flown in from the list is hidden here until it
+  // lands, then revealed in place. See src/transition/HeroContext.tsx.
+  const hero = useHero();
+  const avatarRef = useRef<View>(null);
+  const hasArrived = useRef(false);
+  const isLeaving = useRef(false);
+
+  const avatarStyle = useAnimatedStyle(() => ({opacity: hero.settled.value}));
+
+  const handleAvatarLayout = useCallback(() => {
+    if (hasArrived.current) {
+      return;
+    }
+    avatarRef.current?.measureInWindow((_x, y, w, h) => {
+      if (!w || !h) {
+        return;
+      }
+      hasArrived.current = true;
+      // The focused avatar is always horizontally centered on screen, so derive
+      // x from the measured width rather than the (possibly pre-scroll) x.
+      hero.arrive({x: (width - w) / 2, y, width: w, height: h});
+    });
+  }, [hero]);
+
+  // Reveal the avatar regardless if the measurement never lands, and clean up
+  // the overlay when leaving the screen.
+  useEffect(() => {
+    const safety = setTimeout(() => {
+      if (!hasArrived.current) {
+        hero.settle();
+      }
+    }, 800);
+    return () => {
+      clearTimeout(safety);
+      hero.reset();
+    };
+  }, [hero]);
+
   const [painelHeight] = useState(new Animated.Value(INITIAL_DETAIL_POSITION));
   const animatedYPosition = useSharedValue(INITIAL_DETAIL_POSITION);
   // const [avatarX] = useState(new Animated.Value(0));
@@ -80,6 +120,30 @@ const Detail = () => {
       }),
     ).start();
   }, []);
+
+  // On close, fly the avatar back to its card. Only when we're still showing the
+  // pokemon we arrived with (the list can be swiped to another) and the entrance
+  // actually played — otherwise just let the screen fade out normally.
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
+      if (isLeaving.current) {
+        return; // re-dispatched below: let it through
+      }
+      if (!hasArrived.current || currentSelection !== index) {
+        return;
+      }
+      const playing = hero.reverse();
+      if (!playing) {
+        return;
+      }
+      e.preventDefault();
+      isLeaving.current = true;
+      // Dismiss now so the screen fades out while the avatar flies; the overlay
+      // lives above the navigator and survives the unmount.
+      navigation.dispatch(e.data.action);
+    });
+    return unsubscribe;
+  }, [navigation, hero, currentSelection, index]);
 
   const animatedColor = () => {
     const input = new Array(pokemonList.length)
@@ -128,6 +192,7 @@ const Detail = () => {
 
   const renderListItem = ({item: listItem}) => {
     const imageURL = `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${listItem.num}.png`;
+    const isFocused = listItem.id === item.id;
 
     return (
       <View>
@@ -139,11 +204,14 @@ const Detail = () => {
         />
         <Reanimated.View style={styles.listItemContainer}>
           {renderBackgroundPokeball()}
-          <Animated.View style={{...styles.listItemContainer}}>
-            <SharedElement id={`item.${listItem.id}.photo`}>
-              <Image source={imageURL} style={{...styles.itemImage}} />
-            </SharedElement>
-          </Animated.View>
+          <View
+            ref={isFocused ? avatarRef : undefined}
+            onLayout={isFocused ? handleAvatarLayout : undefined}
+            style={styles.avatarBox}>
+            <Reanimated.View style={[styles.avatarFill, avatarStyle]}>
+              <Image source={imageURL} style={styles.avatarImage} />
+            </Reanimated.View>
+          </View>
         </Reanimated.View>
       </View>
     );
@@ -156,7 +224,7 @@ const Detail = () => {
         [INITIAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION * 0.87],
         [1, 0],
         {
-          extrapolateRight: Extrapolate.CLAMP,
+          extrapolateRight: Extrapolation.CLAMP,
         },
       ),
       transform: [
@@ -166,7 +234,7 @@ const Detail = () => {
             [INITIAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION / 3],
             [0, 100],
             {
-              extrapolateRight: Extrapolate.CLAMP,
+              extrapolateRight: Extrapolation.CLAMP,
             },
           ),
         },
@@ -181,7 +249,7 @@ const Detail = () => {
         [INITIAL_DETAIL_POSITION, INITIAL_DETAIL_POSITION * 0.87],
         [1, 0],
         {
-          extrapolateRight: Extrapolate.CLAMP,
+          extrapolateRight: Extrapolation.CLAMP,
         },
       ),
       transform: [
@@ -191,7 +259,7 @@ const Detail = () => {
             [INITIAL_DETAIL_POSITION, FINAL_DETAIL_POSITION],
             [height * 0.4, height * 0.5],
             {
-              extrapolateRight: Extrapolate.CLAMP,
+              extrapolateRight: Extrapolation.CLAMP,
             },
           ),
         },
@@ -285,8 +353,18 @@ const Detail = () => {
       <BottomSheet
         ref={bottomSheetRef}
         snapPoints={snapPoints}
+        enableDynamicSizing={false}
+        topInset={insets.top}
         animatedPosition={animatedYPosition}>
-        <Tabs item={{...pokemon}} loading={loadingDetails} />
+        {/*
+          bottom-sheet v5's BottomSheetView is position:absolute and sized by its
+          content, so `flex: 1` collapses it (and the TabView's pager) to height 0.
+          Give it the full-open sheet height so the tabs actually render; the sheet
+          clips the overflow at the half-open snap.
+        */}
+        <BottomSheetView style={styles.sheetContent}>
+          <Tabs item={{...pokemon}} loading={loadingDetails} />
+        </BottomSheetView>
       </BottomSheet>
     </Animated.View>
   );
@@ -294,6 +372,7 @@ const Detail = () => {
 
 const styles = StyleSheet.create({
   container: {flex: 1, height: '100%', zIndex: -999},
+  sheetContent: {height: FINAL_DETAIL_POSITION},
   cardContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -325,11 +404,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemImage: {
+  avatarBox: {
     width: ITEM_SIZE,
     height: ITEM_SIZE,
     zIndex: 11,
     marginHorizontal: SPACING,
+  },
+  avatarFill: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 

@@ -2,9 +2,9 @@ import React, {useCallback} from 'react';
 import {Dimensions, StyleSheet, Text, TextStyle, View} from 'react-native';
 import {TabBar, TabView} from 'react-native-tab-view';
 import Pokemon from '../model/Pokemon';
-import About from '../pages/Detail/About';
-import Evolution from '../pages/Detail/Evolution';
-import Status from '../pages/Detail/Status';
+import About from '../pages/detail/about';
+import Evolution from '../pages/detail/evolution';
+import Status from '../pages/detail/status';
 import globalStyles, {colors} from '../styles/index';
 
 const initialLayout = {width: Dimensions.get('window').width};
@@ -41,13 +41,22 @@ const DetailTabs: React.FC<IDetailTabs> = ({item}) => {
           {...props}
           indicatorStyle={{backgroundColor: colors[item.type[0]]}}
           style={styles.tabBar}
-          renderLabel={({route, focused}) => (
-            <Text style={getLabelStyle(focused)}>{route.title}</Text>
-          )}
         />
       );
     },
     [item.id],
+  );
+
+  // react-native-tab-view v4 removed TabBar's `renderLabel`; labels are now
+  // provided via commonOptions/options. Without this the default white-ish
+  // label renders invisibly on the white tab bar.
+  const commonOptions = React.useMemo(
+    () => ({
+      label: ({route, focused}: {route: {title: string}; focused: boolean}) => (
+        <Text style={getLabelStyle(focused)}>{route.title}</Text>
+      ),
+    }),
+    [getLabelStyle],
   );
 
   const [routes] = React.useState([
@@ -83,6 +92,7 @@ const DetailTabs: React.FC<IDetailTabs> = ({item}) => {
       onIndexChange={setIndex}
       initialLayout={initialLayout}
       renderTabBar={renderTabBar()}
+      commonOptions={commonOptions}
       swipeEnabled={true}
     />
   );

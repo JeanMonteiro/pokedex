@@ -1,31 +1,30 @@
 import React from 'react';
 import isNumber from 'lodash/isNumber';
-import FastImage, {FastImageProps, Source} from 'react-native-fast-image';
-import {Animated} from 'react-native';
+import {Animated, Image as RNImage, ImageProps} from 'react-native';
 
-const AnimatedImage = Animated.createAnimatedComponent(FastImage);
+const AnimatedImage = Animated.createAnimatedComponent(RNImage);
 
 interface Props {
-  source: string | undefined;
+  source: string | number | undefined;
   fallbackSrc?: string | number | undefined;
 }
-const Image: React.FC<Partial<Omit<FastImageProps, 'source'>> & Props> = (
-  props: Partial<Omit<FastImageProps, 'source'>> & Props,
-) => {
+
+const Image: React.FC<Partial<Omit<ImageProps, 'source'>> & Props> = props => {
   const {source, fallbackSrc} = props;
-  let imageSource: number | {uri: string | number | undefined} = {
-    uri: source || fallbackSrc,
+
+  let imageSource: number | {uri: string | undefined} = {
+    uri: typeof source === 'string' ? source : (fallbackSrc as string),
   };
 
   if (isNumber(source) || (!source && isNumber(fallbackSrc))) {
-    imageSource = (source || fallbackSrc) as number;
+    imageSource = (source ?? fallbackSrc) as number;
   }
 
   return (
     <AnimatedImage
       {...props}
-      source={imageSource as number | Source}
-      accessibilityRole={'image'}
+      source={imageSource as ImageProps['source']}
+      accessibilityRole="image"
     />
   );
 };

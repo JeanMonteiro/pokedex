@@ -11,11 +11,19 @@ import {
 import Reanimated, {
   useAnimatedStyle,
   interpolate,
-  Extrapolate,
+  Extrapolation,
 } from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@react-native-vector-icons/fontawesome/static';
 
 const {height} = Dimensions.get('screen');
+
+// bottomSheetY is the sheet's top-edge Y: ~height/2 at the half-open snap and
+// ~height*0.15 at full-open. Keep the title hidden until the final stretch of
+// the drag, then fade it in so it's only visible once the sheet is (nearly)
+// fully open. Both ends are clamped, so it stays 0 at half-open and reaches 1
+// at full-open regardless of device size / safe-area inset.
+const TITLE_FULLY_VISIBLE_Y = height * 0.2;
+const TITLE_REVEAL_START_Y = height * 0.34;
 
 export interface HeaderProps {
   bottomSheetY: Reanimated.SharedValue<number>;
@@ -25,9 +33,12 @@ export interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({pokemonName, bottomSheetY}) => {
   const navigation = useNavigation();
   const reanimatedWrapperStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(bottomSheetY.value, [448, 350], [0, 1], {
-      extrapolateRight: Extrapolate.CLAMP,
-    }),
+    opacity: interpolate(
+      bottomSheetY.value,
+      [TITLE_FULLY_VISIBLE_Y, TITLE_REVEAL_START_Y],
+      [1, 0],
+      Extrapolation.CLAMP,
+    ),
   }));
   return (
     <View style={styles.container}>
