@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {Bar} from 'react-native-progress';
 import {PokemonDetail} from '../../model/Pokemon';
-import GStyles, {colors} from '../../styles/index';
+import GStyles, {colorForType, colors} from '../../styles/index';
 
 const Status: React.FC<{item: PokemonDetail}> = ({item}) => {
   const statusList = () => {
@@ -15,7 +15,7 @@ const Status: React.FC<{item: PokemonDetail}> = ({item}) => {
           </View>
           <Bar
             progress={status.value / 100}
-            color={colors[item.type[0]]}
+            color={colorForType(item.type[0])}
             borderWidth={1}
             height={20}
           />

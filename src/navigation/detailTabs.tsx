@@ -5,7 +5,7 @@ import {PokemonDetail} from '../model/Pokemon';
 import About from '../pages/detail/about';
 import Evolution from '../pages/detail/evolution';
 import Status from '../pages/detail/status';
-import globalStyles, {colors} from '../styles/index';
+import globalStyles, {colorForType, colors} from '../styles/index';
 
 const initialLayout = {width: Dimensions.get('window').width};
 
@@ -40,7 +40,7 @@ const DetailTabs: React.FC<IDetailTabs> = ({item}) => {
       return (
         <TabBar
           {...props}
-          indicatorStyle={{backgroundColor: colors[item.type[0]]}}
+          indicatorStyle={{backgroundColor: colorForType(item.type[0])}}
           style={styles.tabBar}
         />
       );

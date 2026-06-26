@@ -10,7 +10,7 @@ import {
 import Reanimated from 'react-native-reanimated';
 import Image from '../components/Image';
 import {PokemonSummary} from '../model/Pokemon';
-import {colors} from '../styles';
+import {colorForType} from '../styles';
 import {useHero} from '../transition/HeroContext';
 
 const POKEBALL_IMAGE = require('../assets/pokeball.png');
@@ -56,7 +56,7 @@ const Card: React.FC<ICard> = ({item, cardSize, index, onPress}) => {
           height: cardSize,
         }}>
         <TouchableOpacity
-          style={{...styles.touch, backgroundColor: colors[item.type[0]]}}
+          style={[styles.touch, {backgroundColor: colorForType(item.type[0])}]}
           onPress={onCardPress}>
           <Text style={styles.cardTitle}>{item.name}</Text>
           <Image

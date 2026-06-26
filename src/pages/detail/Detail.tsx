@@ -13,7 +13,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Image from '../../components/Image';
 import Tabs from '../../navigation/detailTabs';
 import api from '../../services/api';
-import {colors} from '../../styles/index';
+import {colorForType} from '../../styles/index';
 import calc from '../../util/calc';
 import ChangePokemonButton from './ChangePokemonButton';
 import Header from './Header';
@@ -152,7 +152,7 @@ const Detail = () => {
 
     return pokemonListOffset.interpolate({
       inputRange: input,
-      outputRange: input.map((value, i) => colors[pokemonList[i].type[0]]),
+      outputRange: input.map((value, i) => colorForType(pokemonList[i].type[0])),
     });
   };
 
