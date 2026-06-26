@@ -15,13 +15,23 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
   const {dataBase} = usePokemonStore();
 
   const evolutionsNode = () => {
-    return item.evolutionList?.map((node, index) => {
+    const list = item.evolutionList;
+    if (!list) {
+      return null;
+    }
+    return list.map((node, index) => {
       const databaseItem = dataBase.find(
-        (item: PokemonSummary) =>
-          item.name == node.name.replace(/^./, node.name[0].toUpperCase()),
+        (entry: PokemonSummary) =>
+          entry.name === node.name.replace(/^./, node.name[0].toUpperCase()),
       );
+      // The sprite URL needs the dex `num` from the loaded list. If this
+      // evolution species isn't in dataBase (partial data), skip the step
+      // rather than dereferencing `undefined.num` and crashing the tab.
+      if (!databaseItem) {
+        return null;
+      }
       return (
-        <Fragment key={index}>
+        <Fragment key={node.name}>
           <View>
             <View>
               <Image
@@ -43,7 +53,7 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
               </View>
             </View>
           </View>
-          {item.evolutionList.length - 1 > index && (
+          {list.length - 1 > index && (
             <View style={styles.arrowIconContainer}>
               <Icon
                 name="chevron-right"

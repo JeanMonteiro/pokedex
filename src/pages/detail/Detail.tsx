@@ -2,7 +2,14 @@ import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  FlatList,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import {PokemonSummary} from '../../model/Pokemon';
 import {RootStackParamList} from '../../navigation/types';
 import {useHero} from '../../transition/HeroContext';
@@ -102,7 +109,7 @@ const Detail = () => {
 
   const [pokeballRotation] = useState(new Animated.Value(0));
 
-  const listRef = useRef(null);
+  const listRef = useRef<FlatList<PokemonSummary>>(null);
 
   const loadDetails = async () => {
     setLoadingDetails(true);
@@ -182,16 +189,17 @@ const Detail = () => {
 
   const changeSelectedPokemon = useCallback(
     (i: number) => () => {
-      if (
-        currentSelection + i < 0 ||
-        currentSelection + i > pokemonList.length
-      ) {
+      const target = currentSelection + i;
+      // Valid indices are 0..length-1; the old guard used `> length`, so at
+      // the last item "next" computed `length` (out of range) and still
+      // called scrollToIndex, which warns/throws.
+      if (target < 0 || target > pokemonList.length - 1) {
         return;
       }
 
-      listRef.current.scrollToIndex({index: currentSelection + i});
+      listRef.current?.scrollToIndex({index: target});
     },
-    [currentSelection],
+    [currentSelection, pokemonList.length],
   );
 
   const renderListItem = ({item: listItem}: {item: PokemonSummary}) => {
