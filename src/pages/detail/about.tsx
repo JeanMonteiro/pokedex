@@ -1,12 +1,10 @@
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import {View, Text, Button, StyleSheet} from 'react-native';
 import GStyle from '../../styles';
-import MyContext from '../../store/context';
 import Gstyle, {colors} from '../../styles/index';
 import {PokemonDetail} from '../../model/Pokemon';
 
 export default function about({item}: {item: PokemonDetail}) {
-  const context = useContext(MyContext);
   return (
     <View>
       <Text style={{...GStyle.textTitle, marginVertical: 10}}>Descrição</Text>

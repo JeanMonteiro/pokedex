@@ -1,6 +1,6 @@
-import React, {useContext, Fragment} from 'react';
+import React, {Fragment} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import MyContext from '../../store/context';
+import {usePokemonStore} from '../../store/context';
 import Gstyles from '../../styles/index';
 import {PokemonDetail, PokemonSummary} from '../../model/Pokemon';
 import {colors} from '../../styles/index';
@@ -12,11 +12,11 @@ export interface IEvolution {
 }
 
 const Evolution: React.FC<IEvolution> = ({item}) => {
-  const context = useContext(MyContext);
+  const {dataBase} = usePokemonStore();
 
   const evolutionsNode = () => {
     return item.evolutionList?.map((node, index) => {
-      const databaseItem = context.dataBase.find(
+      const databaseItem = dataBase.find(
         (item: PokemonSummary) =>
           item.name == node.name.replace(/^./, node.name[0].toUpperCase()),
       );

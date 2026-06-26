@@ -1,10 +1,10 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useContext, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {Dimensions, FlatList, StatusBar, StyleSheet, View} from 'react-native';
 import Card from '../../components/Card';
 import {PokemonSummary} from '../../model/Pokemon';
 import api from '../../services/api';
-import MyContext from '../../store/context';
+import {usePokemonStore} from '../../store/context';
 import Header from './header';
 
 const {width} = Dimensions.get('screen');
@@ -12,7 +12,7 @@ const {width} = Dimensions.get('screen');
 const cardSize = Math.round((width / 100) * 40);
 
 export default () => {
-  const {setIndex, setDatabase} = useContext(MyContext);
+  const {setDatabase} = usePokemonStore();
 
   const [pokemonList, setPokemonList] = useState<PokemonSummary[] | null>(null);
   const navigation = useNavigation();
@@ -28,10 +28,9 @@ export default () => {
 
   const onPressPokemon = useCallback(
     (item: PokemonSummary, index: number) => {
-      setIndex(index);
       navigation.navigate('Detail', {index, item, pokemonList});
     },
-    [navigation, setIndex, pokemonList],
+    [navigation, pokemonList],
   );
 
   const renderPokemonItem = ({
