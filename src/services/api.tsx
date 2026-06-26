@@ -30,18 +30,25 @@ export default {
     }
   },
 
-  getDetails: async (num: string): Promise<PokemonDetailExtra | null> => {
+  getDetails: async (
+    num: string,
+    signal?: AbortSignal,
+  ): Promise<PokemonDetailExtra | null> => {
     try {
       const especiesReturn = await axios.get(
         `https://pokeapi.co/api/v2/pokemon-species/${num}`,
+        {signal},
       );
       const pokemonReturn = await axios.get(
         `https://pokeapi.co/api/v2/pokemon/${num}`,
+        {signal},
       );
       const especies = especiesReturn.data;
       const pokemon = pokemonReturn.data;
 
-      const evolutionReturn = await axios.get(especies?.evolution_chain?.url);
+      const evolutionReturn = await axios.get(especies?.evolution_chain?.url, {
+        signal,
+      });
       const chain = evolutionReturn.data?.chain;
 
       // Each lookup tolerates missing data: a species with no English entry,

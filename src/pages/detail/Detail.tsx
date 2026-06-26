@@ -111,22 +111,33 @@ const Detail = () => {
 
   const listRef = useRef<FlatList<PokemonSummary>>(null);
 
-  const loadDetails = async () => {
+  const loadDetails = async (signal: AbortSignal) => {
     setLoadingDetails(true);
     try {
-      const details = await api.getDetails(pokemonList[currentSelection].num);
+      const details = await api.getDetails(
+        pokemonList[currentSelection].num,
+        signal,
+      );
+      // A faster swipe may have superseded this request; don't clobber the
+      // current pokemon (or its loading flag) with a stale response.
+      if (signal.aborted) {
+        return;
+      }
       setPokemon({...pokemonList[currentSelection], ...(details ?? {})});
     } catch (error) {
-      // getDetails already swallows network errors, but guarantee the
-      // loading flag is cleared so the sheet never sticks on "loading".
       console.log(error);
     } finally {
-      setLoadingDetails(false);
+      if (!signal.aborted) {
+        setLoadingDetails(false);
+      }
     }
   };
 
   useEffect(() => {
-    loadDetails();
+    const controller = new AbortController();
+    loadDetails(controller.signal);
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSelection]);
 
   useEffect(() => {
