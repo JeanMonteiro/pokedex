@@ -4,7 +4,7 @@ import Pokemon from '../model/Pokemon';
 const axios = Axios.create();
 
 export default {
-  list: async (): Promise<Pokemon[] | null> => {
+  list: async (): Promise<Pokemon[]> => {
     try {
       const {data} = await axios.get(
         'https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json',
@@ -14,7 +14,10 @@ export default {
       );
     } catch (error) {
       console.log(error);
-      return null;
+      // Never hand a collection back as null: callers spread it into the
+      // store (`push(...itens)`), and `...null` throws "not iterable",
+      // crashing the whole app on a flaky network. Empty list = recoverable.
+      return [];
     }
   },
 
