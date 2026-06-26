@@ -113,9 +113,16 @@ const Detail = () => {
 
   const loadDetails = async () => {
     setLoadingDetails(true);
-    const details = await api.getDetails(pokemonList[currentSelection].num);
-    await setPokemon({...pokemonList[currentSelection], ...details});
-    setLoadingDetails(false);
+    try {
+      const details = await api.getDetails(pokemonList[currentSelection].num);
+      setPokemon({...pokemonList[currentSelection], ...(details ?? {})});
+    } catch (error) {
+      // getDetails already swallows network errors, but guarantee the
+      // loading flag is cleared so the sheet never sticks on "loading".
+      console.log(error);
+    } finally {
+      setLoadingDetails(false);
+    }
   };
 
   useEffect(() => {
