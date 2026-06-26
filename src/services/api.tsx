@@ -1,17 +1,21 @@
 import Axios from 'axios';
-import Pokemon from '../model/Pokemon';
+import {EvolutionStep, PokemonSummary} from '../model/Pokemon';
 
 const axios = Axios.create();
 
 export default {
-  list: async (): Promise<Pokemon[]> => {
+  list: async (): Promise<PokemonSummary[]> => {
     try {
       const {data} = await axios.get(
         'https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json',
       );
-      return data.pokemon.map(
-        item => new Pokemon(item.id, item.num, item.name, item.type, item.img),
-      );
+      return data.pokemon.map((item: PokemonSummary) => ({
+        id: item.id,
+        num: item.num,
+        name: item.name,
+        type: item.type,
+        img: item.img,
+      }));
     } catch (error) {
       console.log(error);
       // Never hand a collection back as null: callers spread it into the
@@ -21,7 +25,7 @@ export default {
     }
   },
 
-  getDetails: async num => {
+  getDetails: async (num: string) => {
     const especiesReturn = await axios.get(
       `https://pokeapi.co/api/v2/pokemon-species/${new Number(num)}`,
     );
@@ -40,14 +44,14 @@ export default {
 
     const description =
       especiesReturn.data != null
-        ? especiesReturn.data.flavor_text_entries.find(text => {
+        ? especiesReturn.data.flavor_text_entries.find((text: any) => {
             return text.language.name == 'en';
           }).flavor_text
         : null;
 
     const especie =
       especiesReturn.data != null
-        ? especiesReturn.data.genera.find(genera => {
+        ? especiesReturn.data.genera.find((genera: any) => {
             return genera.language.name == 'en';
           }).genus
         : null;
@@ -57,19 +61,19 @@ export default {
 
     const stats =
       pokemonReturn.data != null
-        ? pokemonReturn.data.stats.map(stats => ({
+        ? pokemonReturn.data.stats.map((stats: any) => ({
             value: stats.base_stat,
             name: stats.stat.name,
           }))
         : [];
 
-    const evolutionList = [];
+    const evolutionList: EvolutionStep[] = [];
 
     const initialNode = evolutionReturn.data.chain;
     evolutionList.push({levelTo: 0, name: initialNode?.species?.name});
 
-    const getChildEvolutionInfo = node => {
-      node.forEach(element => {
+    const getChildEvolutionInfo = (node: any[]) => {
+      node.forEach((element: any) => {
         const levelTo = element.evolution_details[0].min_level;
         const name = element.species.name;
         evolutionList.push({levelTo, name});

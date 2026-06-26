@@ -9,17 +9,17 @@ import {
 } from 'react-native';
 import Reanimated from 'react-native-reanimated';
 import Image from '../components/Image';
-import Pokemon from '../model/Pokemon';
+import {PokemonSummary} from '../model/Pokemon';
 import {colors} from '../styles';
 import {useHero} from '../transition/HeroContext';
 
 const POKEBALL_IMAGE = require('../assets/pokeball.png');
 
 export interface ICard {
-  item: Pokemon;
+  item: PokemonSummary;
   cardSize: number;
   index: number;
-  onPress: (item: Pokemon, index: number) => void;
+  onPress: (item: PokemonSummary, index: number) => void;
 }
 
 const Card: React.FC<ICard> = ({item, cardSize, index, onPress}) => {

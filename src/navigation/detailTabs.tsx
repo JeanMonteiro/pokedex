@@ -1,7 +1,7 @@
 import React, {useCallback} from 'react';
 import {Dimensions, StyleSheet, Text, TextStyle, View} from 'react-native';
 import {TabBar, TabView} from 'react-native-tab-view';
-import Pokemon from '../model/Pokemon';
+import {PokemonDetail} from '../model/Pokemon';
 import About from '../pages/detail/about';
 import Evolution from '../pages/detail/evolution';
 import Status from '../pages/detail/status';
@@ -10,7 +10,8 @@ import globalStyles, {colors} from '../styles/index';
 const initialLayout = {width: Dimensions.get('window').width};
 
 export interface IDetailTabs {
-  item: Pokemon;
+  item: PokemonDetail;
+  loading?: boolean;
 }
 
 const DetailTabs: React.FC<IDetailTabs> = ({item}) => {

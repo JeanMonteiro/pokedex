@@ -1,10 +1,10 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {Bar} from 'react-native-progress';
-import Pokemon from '../../model/Pokemon';
+import {PokemonDetail} from '../../model/Pokemon';
 import GStyles, {colors} from '../../styles/index';
 
-const Status: React.FC<{item: Pokemon}> = ({item}) => {
+const Status: React.FC<{item: PokemonDetail}> = ({item}) => {
   const statusList = () => {
     return item.stats?.map((status, index) => (
       <View style={styles.statusContainer} key={index}>

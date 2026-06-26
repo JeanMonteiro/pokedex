@@ -2,13 +2,13 @@ import React, {useContext, Fragment} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import MyContext from '../../store/context';
 import Gstyles from '../../styles/index';
-import Pokemon from '../../model/Pokemon';
+import {PokemonDetail, PokemonSummary} from '../../model/Pokemon';
 import {colors} from '../../styles/index';
 import Icon from '@react-native-vector-icons/fontawesome/static';
 import Image from '../../components/Image';
 
 export interface IEvolution {
-  item: Pokemon;
+  item: PokemonDetail;
 }
 
 const Evolution: React.FC<IEvolution> = ({item}) => {
@@ -17,7 +17,7 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
   const evolutionsNode = () => {
     return item.evolutionList?.map((node, index) => {
       const databaseItem = context.dataBase.find(
-        (item: Pokemon) =>
+        (item: PokemonSummary) =>
           item.name == node.name.replace(/^./, node.name[0].toUpperCase()),
       );
       return (
