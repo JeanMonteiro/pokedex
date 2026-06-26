@@ -36,7 +36,9 @@ const DetailTabs: React.FC<IDetailTabs> = ({item}) => {
   );
 
   const renderTabBar = useCallback(
-    () => props => {
+    () =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (props: any) => {
       return (
         <TabBar
           {...props}
@@ -68,7 +70,7 @@ const DetailTabs: React.FC<IDetailTabs> = ({item}) => {
 
   const renderScene =
     () =>
-    ({route}) => {
+    ({route}: {route: {key: string}}) => {
       let scene;
       switch (route.key) {
         case '1':
