@@ -1,7 +1,10 @@
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
+import {PokemonSummary} from '../../model/Pokemon';
+import {RootStackParamList} from '../../navigation/types';
 import {useHero} from '../../transition/HeroContext';
 import Reanimated, {
   Extrapolation,
@@ -44,11 +47,12 @@ const Detail = () => {
 
   const insets = useSafeAreaInsets();
 
-  const route = useRoute();
+  const route = useRoute<RouteProp<RootStackParamList, 'Detail'>>();
 
   const {item, index, pokemonList} = route.params;
 
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // Hero transition: the avatar flown in from the list is hidden here until it
   // lands, then revealed in place. See src/transition/HeroContext.tsx.
@@ -177,7 +181,7 @@ const Detail = () => {
   };
 
   const changeSelectedPokemon = useCallback(
-    i => () => {
+    (i: number) => () => {
       if (
         currentSelection + i < 0 ||
         currentSelection + i > pokemonList.length
@@ -190,7 +194,7 @@ const Detail = () => {
     [currentSelection],
   );
 
-  const renderListItem = ({item: listItem}) => {
+  const renderListItem = ({item: listItem}: {item: PokemonSummary}) => {
     const imageURL = `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${listItem.num}.png`;
     const isFocused = listItem.id === item.id;
 
