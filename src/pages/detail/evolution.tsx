@@ -1,27 +1,37 @@
-import React, {useContext, Fragment} from 'react';
+import React, {Fragment} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import MyContext from '../../store/context';
+import {usePokemonStore} from '../../store/context';
 import Gstyles from '../../styles/index';
-import Pokemon from '../../model/Pokemon';
+import {PokemonDetail, PokemonSummary} from '../../model/Pokemon';
 import {colors} from '../../styles/index';
 import Icon from '@react-native-vector-icons/fontawesome/static';
 import Image from '../../components/Image';
 
 export interface IEvolution {
-  item: Pokemon;
+  item: PokemonDetail;
 }
 
 const Evolution: React.FC<IEvolution> = ({item}) => {
-  const context = useContext(MyContext);
+  const {dataBase} = usePokemonStore();
 
   const evolutionsNode = () => {
-    return item.evolutionList?.map((node, index) => {
-      const databaseItem = context.dataBase.find(
-        (item: Pokemon) =>
-          item.name == node.name.replace(/^./, node.name[0].toUpperCase()),
+    const list = item.evolutionList;
+    if (!list) {
+      return null;
+    }
+    return list.map((node, index) => {
+      const databaseItem = dataBase.find(
+        (entry: PokemonSummary) =>
+          entry.name === node.name.replace(/^./, node.name[0].toUpperCase()),
       );
+      // The sprite URL needs the dex `num` from the loaded list. If this
+      // evolution species isn't in dataBase (partial data), skip the step
+      // rather than dereferencing `undefined.num` and crashing the tab.
+      if (!databaseItem) {
+        return null;
+      }
       return (
-        <Fragment key={index}>
+        <Fragment key={node.name}>
           <View>
             <View>
               <Image
@@ -43,7 +53,7 @@ const Evolution: React.FC<IEvolution> = ({item}) => {
               </View>
             </View>
           </View>
-          {item.evolutionList.length - 1 > index && (
+          {list.length - 1 > index && (
             <View style={styles.arrowIconContainer}>
               <Icon
                 name="chevron-right"

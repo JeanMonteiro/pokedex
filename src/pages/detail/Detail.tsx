@@ -1,7 +1,17 @@
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Animated, Dimensions, StatusBar, StyleSheet, View} from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  FlatList,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
+import {PokemonSummary} from '../../model/Pokemon';
+import {RootStackParamList} from '../../navigation/types';
 import {useHero} from '../../transition/HeroContext';
 import Reanimated, {
   Extrapolation,
@@ -13,7 +23,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import Image from '../../components/Image';
 import Tabs from '../../navigation/detailTabs';
 import api from '../../services/api';
-import {colors} from '../../styles/index';
+import {colorForType} from '../../styles/index';
 import calc from '../../util/calc';
 import ChangePokemonButton from './ChangePokemonButton';
 import Header from './Header';
@@ -44,11 +54,12 @@ const Detail = () => {
 
   const insets = useSafeAreaInsets();
 
-  const route = useRoute();
+  const route = useRoute<RouteProp<RootStackParamList, 'Detail'>>();
 
   const {item, index, pokemonList} = route.params;
 
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // Hero transition: the avatar flown in from the list is hidden here until it
   // lands, then revealed in place. See src/transition/HeroContext.tsx.
@@ -98,17 +109,35 @@ const Detail = () => {
 
   const [pokeballRotation] = useState(new Animated.Value(0));
 
-  const listRef = useRef(null);
+  const listRef = useRef<FlatList<PokemonSummary>>(null);
 
-  const loadDetails = async () => {
+  const loadDetails = async (signal: AbortSignal) => {
     setLoadingDetails(true);
-    const details = await api.getDetails(pokemonList[currentSelection].num);
-    await setPokemon({...pokemonList[currentSelection], ...details});
-    setLoadingDetails(false);
+    try {
+      const details = await api.getDetails(
+        pokemonList[currentSelection].num,
+        signal,
+      );
+      // A faster swipe may have superseded this request; don't clobber the
+      // current pokemon (or its loading flag) with a stale response.
+      if (signal.aborted) {
+        return;
+      }
+      setPokemon({...pokemonList[currentSelection], ...(details ?? {})});
+    } catch (error) {
+      console.log(error);
+    } finally {
+      if (!signal.aborted) {
+        setLoadingDetails(false);
+      }
+    }
   };
 
   useEffect(() => {
-    loadDetails();
+    const controller = new AbortController();
+    loadDetails(controller.signal);
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSelection]);
 
   useEffect(() => {
@@ -152,7 +181,7 @@ const Detail = () => {
 
     return pokemonListOffset.interpolate({
       inputRange: input,
-      outputRange: input.map((value, i) => colors[pokemonList[i].type[0]]),
+      outputRange: input.map((value, i) => colorForType(pokemonList[i].type[0])),
     });
   };
 
@@ -177,20 +206,21 @@ const Detail = () => {
   };
 
   const changeSelectedPokemon = useCallback(
-    i => () => {
-      if (
-        currentSelection + i < 0 ||
-        currentSelection + i > pokemonList.length
-      ) {
+    (i: number) => () => {
+      const target = currentSelection + i;
+      // Valid indices are 0..length-1; the old guard used `> length`, so at
+      // the last item "next" computed `length` (out of range) and still
+      // called scrollToIndex, which warns/throws.
+      if (target < 0 || target > pokemonList.length - 1) {
         return;
       }
 
-      listRef.current.scrollToIndex({index: currentSelection + i});
+      listRef.current?.scrollToIndex({index: target});
     },
-    [currentSelection],
+    [currentSelection, pokemonList.length],
   );
 
-  const renderListItem = ({item: listItem}) => {
+  const renderListItem = ({item: listItem}: {item: PokemonSummary}) => {
     const imageURL = `https://raw.githubusercontent.com/fanzeyi/pokemon.json/master/images/${listItem.num}.png`;
     const isFocused = listItem.id === item.id;
 

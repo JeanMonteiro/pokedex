@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import Reanimated, {
+  SharedValue,
   useAnimatedStyle,
   interpolate,
   Extrapolation,
@@ -26,7 +27,7 @@ const TITLE_FULLY_VISIBLE_Y = height * 0.2;
 const TITLE_REVEAL_START_Y = height * 0.34;
 
 export interface HeaderProps {
-  bottomSheetY: Reanimated.SharedValue<number>;
+  bottomSheetY: SharedValue<number>;
   pokemonName: string;
 }
 

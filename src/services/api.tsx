@@ -1,90 +1,104 @@
 import Axios from 'axios';
-import Pokemon from '../model/Pokemon';
+import {
+  EvolutionStep,
+  PokemonDetailExtra,
+  PokemonStat,
+  PokemonSummary,
+} from '../model/Pokemon';
 
 const axios = Axios.create();
 
 export default {
-  list: async (): Promise<Pokemon[] | null> => {
+  list: async (): Promise<PokemonSummary[]> => {
     try {
       const {data} = await axios.get(
         'https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json',
       );
-      return data.pokemon.map(
-        item => new Pokemon(item.id, item.num, item.name, item.type, item.img),
+      return data.pokemon.map((item: PokemonSummary) => ({
+        id: item.id,
+        num: item.num,
+        name: item.name,
+        type: item.type,
+        img: item.img,
+      }));
+    } catch (error) {
+      console.log(error);
+      // Never hand a collection back as null: callers spread it into the
+      // store (`push(...itens)`), and `...null` throws "not iterable",
+      // crashing the whole app on a flaky network. Empty list = recoverable.
+      return [];
+    }
+  },
+
+  getDetails: async (
+    num: string,
+    signal?: AbortSignal,
+  ): Promise<PokemonDetailExtra | null> => {
+    try {
+      const especiesReturn = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon-species/${num}`,
+        {signal},
       );
+      const pokemonReturn = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon/${num}`,
+        {signal},
+      );
+      const especies = especiesReturn.data;
+      const pokemon = pokemonReturn.data;
+
+      const evolutionReturn = await axios.get(especies?.evolution_chain?.url, {
+        signal,
+      });
+      const chain = evolutionReturn.data?.chain;
+
+      // Each lookup tolerates missing data: a species with no English entry,
+      // an empty evolution_details, or a partial response must not throw.
+      const description = especies?.flavor_text_entries?.find(
+        (text: any) => text.language?.name === 'en',
+      )?.flavor_text;
+
+      const especie = especies?.genera?.find(
+        (genera: any) => genera.language?.name === 'en',
+      )?.genus;
+
+      const stats: PokemonStat[] =
+        pokemon?.stats?.map((stat: any) => ({
+          value: stat.base_stat,
+          name: stat.stat?.name,
+        })) ?? [];
+
+      const evolutionList: EvolutionStep[] = [];
+      if (chain?.species?.name) {
+        evolutionList.push({levelTo: 0, name: chain.species.name});
+      }
+      const collectEvolutions = (nodes: any[] = []) => {
+        nodes.forEach((node: any) => {
+          const name = node.species?.name;
+          if (name) {
+            evolutionList.push({
+              levelTo: node.evolution_details?.[0]?.min_level ?? null,
+              name,
+            });
+          }
+          if (node.evolves_to?.length) {
+            collectEvolutions(node.evolves_to);
+          }
+        });
+      };
+      collectEvolutions(chain?.evolves_to);
+
+      return {
+        height: pokemon?.height,
+        weight: pokemon?.weight,
+        description,
+        especie,
+        anatomia: especies?.shape?.name,
+        stats,
+        evolutionList,
+      };
     } catch (error) {
       console.log(error);
       return null;
     }
-  },
-
-  getDetails: async num => {
-    const especiesReturn = await axios.get(
-      `https://pokeapi.co/api/v2/pokemon-species/${new Number(num)}`,
-    );
-
-    const pokemonReturn = await axios.get(
-      `https://pokeapi.co/api/v2/pokemon/${new Number(num)}`,
-    );
-
-    const evolutionReturn = await axios.get(
-      `${especiesReturn.data.evolution_chain.url}`,
-    );
-    const height =
-      pokemonReturn.data != null ? pokemonReturn.data.height : null;
-    const weight =
-      pokemonReturn.data != null ? pokemonReturn.data.weight : null;
-
-    const description =
-      especiesReturn.data != null
-        ? especiesReturn.data.flavor_text_entries.find(text => {
-            return text.language.name == 'en';
-          }).flavor_text
-        : null;
-
-    const especie =
-      especiesReturn.data != null
-        ? especiesReturn.data.genera.find(genera => {
-            return genera.language.name == 'en';
-          }).genus
-        : null;
-
-    const anatomia =
-      especiesReturn.data != null ? especiesReturn.data.shape.name : null;
-
-    const stats =
-      pokemonReturn.data != null
-        ? pokemonReturn.data.stats.map(stats => ({
-            value: stats.base_stat,
-            name: stats.stat.name,
-          }))
-        : [];
-
-    const evolutionList = [];
-
-    const initialNode = evolutionReturn.data.chain;
-    evolutionList.push({levelTo: 0, name: initialNode?.species?.name});
-
-    const getChildEvolutionInfo = node => {
-      node.forEach(element => {
-        const levelTo = element.evolution_details[0].min_level;
-        const name = element.species.name;
-        evolutionList.push({levelTo, name});
-        if (element.evolves_to.length > 0)
-          getChildEvolutionInfo(element.evolves_to);
-      });
-    };
-
-    getChildEvolutionInfo(evolutionReturn.data.chain.evolves_to);
-
-    return {
-      height,
-      weight,
-      description,
-      especie,
-      stats,
-      anatomia,
-      evolutionList,
-    };
   },
 };

@@ -14,7 +14,26 @@ export default StyleSheet.create({
   },
 });
 
-export const colors = {
+export type PokemonType =
+  | 'Plant'
+  | 'Fire'
+  | 'Water'
+  | 'Psychic'
+  | 'Dragon'
+  | 'Ice'
+  | 'Grass'
+  | 'Poison'
+  | 'Bug'
+  | 'Rock'
+  | 'Electric'
+  | 'Normal'
+  | 'Ground'
+  | 'Dark'
+  | 'Flying'
+  | 'Fighting'
+  | 'Ghost';
+
+const typeColors: Record<PokemonType, string> = {
   Plant: '#72B357',
   Fire: '#DC5E45',
   Water: '#599FEC',
@@ -32,6 +51,18 @@ export const colors = {
   Flying: '#a294ea',
   Fighting: '#b33c31',
   Ghost: '#6c5b94',
+};
+
+/** Fallback for an unknown/missing type so backgroundColor is never undefined. */
+export const DEFAULT_TYPE_COLOR = typeColors.Normal;
+
+/** Background color for a pokemon type, safe for arbitrary API strings. */
+export function colorForType(type?: string): string {
+  return (type && typeColors[type as PokemonType]) || DEFAULT_TYPE_COLOR;
+}
+
+export const colors = {
+  ...typeColors,
   default: {
     foregroundText: '#A4A7A9',
     activeText: '#555',

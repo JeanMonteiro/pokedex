@@ -1,17 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useCallback, useContext, useState} from 'react';
-import {
-  Animated,
-  Dimensions,
-  FlatList,
-  StatusBar,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import React, {useCallback, useState} from 'react';
+import {Dimensions, FlatList, StatusBar, StyleSheet, View} from 'react-native';
 import Card from '../../components/Card';
-import Pokemon from '../../model/Pokemon';
+import {PokemonSummary} from '../../model/Pokemon';
+import {RootStackParamList} from '../../navigation/types';
 import api from '../../services/api';
-import MyContext from '../../store/context';
+import {usePokemonStore} from '../../store/context';
 import Header from './header';
 
 const {width} = Dimensions.get('screen');
@@ -19,10 +14,11 @@ const {width} = Dimensions.get('screen');
 const cardSize = Math.round((width / 100) * 40);
 
 export default () => {
-  const {setIndex, setDatabase} = useContext(MyContext);
+  const {setDatabase} = usePokemonStore();
 
-  const [pokemonList, setPokemonList] = useState<Pokemon[] | null>(null);
-  const navigation = useNavigation();
+  const [pokemonList, setPokemonList] = useState<PokemonSummary[] | null>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -33,30 +29,23 @@ export default () => {
     fetchData();
   }, []);
 
-  React.useEffect(() => {
-    if (pokemonList) {
-      for (let i = 0; i < pokemonList.length; i++) {
-        const element = pokemonList[i];
-        setTimeout(() => {
-          Animated.spring(element.size, {
-            toValue: cardSize,
-            tension: 1,
-            useNativeDriver: false,
-          }).start();
-        }, i * 200);
-      }
-    }
-  }, [pokemonList]);
-
   const onPressPokemon = useCallback(
-    (item, index) => {
-      setIndex(index);
+    (item: PokemonSummary, index: number) => {
+      if (!pokemonList) {
+        return;
+      }
       navigation.navigate('Detail', {index, item, pokemonList});
     },
-    [navigation, setIndex, pokemonList],
+    [navigation, pokemonList],
   );
 
-  const renderPokemonItem = ({item, index}) => (
+  const renderPokemonItem = ({
+    item,
+    index,
+  }: {
+    item: PokemonSummary;
+    index: number;
+  }) => (
     <View style={styles.itemCardContainer}>
       <Card
         cardSize={cardSize}

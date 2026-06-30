@@ -3,38 +3,25 @@ import {View} from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import Navigation from './src/navigation';
-import MyContext from './src/store/context';
-import Pokemon from './src/model/Pokemon';
+import {PokemonProvider} from './src/store/context';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {HeroProvider} from './src/transition/HeroContext';
-
-const state = {
-  dataBase: [],
-  item: null,
-  index: null,
-  setDatabase: (itens: Pokemon[]) => {
-    state.dataBase.push(...itens);
-  },
-  setItem: pokemon => {
-    state.item = pokemon;
-  },
-  setIndex: index => {
-    state.index = index;
-  },
-};
+import ErrorBoundary from './src/components/ErrorBoundary';
 
 const App: React.FC = () => {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <MyContext.Provider value={state}>
-        <SafeAreaProvider>
-          <HeroProvider>
-            <View style={{flex: 1}}>
-              <Navigation />
-            </View>
-          </HeroProvider>
-        </SafeAreaProvider>
-      </MyContext.Provider>
+      <ErrorBoundary>
+        <PokemonProvider>
+          <SafeAreaProvider>
+            <HeroProvider>
+              <View style={{flex: 1}}>
+                <Navigation />
+              </View>
+            </HeroProvider>
+          </SafeAreaProvider>
+        </PokemonProvider>
+      </ErrorBoundary>
     </GestureHandlerRootView>
   );
 };

@@ -1,10 +1,10 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {Bar} from 'react-native-progress';
-import Pokemon from '../../model/Pokemon';
-import GStyles, {colors} from '../../styles/index';
+import {PokemonDetail} from '../../model/Pokemon';
+import GStyles, {colorForType, colors} from '../../styles/index';
 
-const Status: React.FC<{item: Pokemon}> = ({item}) => {
+const Status: React.FC<{item: PokemonDetail}> = ({item}) => {
   const statusList = () => {
     return item.stats?.map((status, index) => (
       <View style={styles.statusContainer} key={index}>
@@ -15,7 +15,7 @@ const Status: React.FC<{item: Pokemon}> = ({item}) => {
           </View>
           <Bar
             progress={status.value / 100}
-            color={colors[item.type[0]]}
+            color={colorForType(item.type[0])}
             borderWidth={1}
             height={20}
           />
